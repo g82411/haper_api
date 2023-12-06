@@ -15,6 +15,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 )
 
 func APIGatewayRequestToHTTPRequest(req events.APIGatewayProxyRequest) (*http.Request, error) {
@@ -28,9 +29,17 @@ func APIGatewayRequestToHTTPRequest(req events.APIGatewayProxyRequest) (*http.Re
 		}
 		jsonStr = decodedBody
 	}
-
+	urlStr := req.Path // 假设 req.Path 包含基本的 URL 路径
+	if len(req.QueryStringParameters) > 0 {
+		queryParams := url.Values{}
+		for key, value := range req.QueryStringParameters {
+			queryParams.Add(key, value)
+		}
+		// 将查询参数附加到 URL
+		urlStr = fmt.Sprintf("%s?%s", urlStr, queryParams.Encode())
+	}
 	// 创建新的 HTTP 请求
-	httpReq, err := http.NewRequest(req.HTTPMethod, req.Path, bytes.NewBuffer(jsonStr))
+	httpReq, err := http.NewRequest(req.HTTPMethod, urlStr, bytes.NewBuffer(jsonStr))
 	if err != nil {
 		return nil, err
 	}
