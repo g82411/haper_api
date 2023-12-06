@@ -14,6 +14,7 @@ import (
 	"hyper_api/internal/utils"
 	"hyper_api/internal/utils/aws"
 	"hyper_api/internal/utils/resolver"
+	"strings"
 )
 
 type GenerateRequest struct {
@@ -42,8 +43,22 @@ func resolveAction(action int) string {
 	return actions[action]
 }
 
+func extractToken(c *fiber.Ctx) string {
+	// 从Authorization头部获取值
+	authHeader := c.Get("Authorization")
+
+	// 检查值是否以"Bearer "开头
+	if strings.HasPrefix(authHeader, "Bearer ") {
+		// 提取并返回token部分
+		return strings.TrimPrefix(authHeader, "Bearer ")
+	}
+
+	// 如果没有找到有效的token，则返回空字符串或错误
+	return ""
+}
+
 func GenerateImage(c *fiber.Ctx) error {
-	token := c.Cookies("token")
+	token := extractToken(c)
 	setting := config.GetConfig()
 	fmt.Println("token", token)
 	if token == "" {

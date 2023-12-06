@@ -2,7 +2,6 @@ package paths
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"hyper_api/internal/config"
 	"hyper_api/internal/utils"
 	"hyper_api/internal/utils/aws"
 )
@@ -12,9 +11,14 @@ type SurveyPayload struct {
 }
 
 func Survey(c *fiber.Ctx) error {
-	token := c.Cookies("token")
+	token := extractToken(c)
+
 	if token == "" {
-		return c.Redirect(config.GetConfig().CognitoDomain + "/oauth2/authorize?response_type=code&client_id=" + config.GetConfig().CognitoClientId + "&redirect_uri=" + config.GetConfig().RedirectURL)
+		c.Status(fiber.StatusUnauthorized)
+		err := c.JSON(fiber.Map{
+			"message": "Unauthorized",
+		})
+		return err
 	}
 	accessData, err := utils.ExtractUserInfoFromToken(token)
 	if err != nil {

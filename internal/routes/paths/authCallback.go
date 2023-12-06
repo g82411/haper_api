@@ -44,8 +44,9 @@ func AuthCallback(c *fiber.Ctx) error {
 	cookie.HTTPOnly = true
 	c.Cookie(cookie)
 	res := map[string]interface{}{
-		"username": userData.Name,
-		"email":    userData.Email,
+		"access_token": token.AccessToken,
+		"username":     userData.Name,
+		"email":        userData.Email,
 	}
 	c.Status(fiber.StatusCreated)
 	if userData.IsDoneSurvey == "true" {
