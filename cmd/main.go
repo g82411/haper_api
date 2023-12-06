@@ -61,7 +61,7 @@ func handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 		"Access-Control-Allow-Headers":     "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent",
 		"Access-Control-Allow-Methods":     "OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD",
 		"Access-Control-Allow-Origin":      c.AllowOrigin,
-		"Access-Control-Allow-Credentials": "false",
+		"Access-Control-Allow-Credentials": "true",
 	}
 	// 初始化 Fiber
 	app := fiber.New()
