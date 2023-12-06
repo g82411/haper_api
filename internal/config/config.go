@@ -22,11 +22,13 @@ type Config struct {
 	DBName           string
 	CDNHost          string
 	GenerateS3Bucket string
+	WebHOST          string
 }
 
 func GetConfig() *Config {
 	return &Config{
 		AWSRegion:        "ap-southeast-1",
+		WebHOST:          os.Getenv("WEB_HOST"),
 		OpenAIKey:        os.Getenv("OPENAI_KEY"),
 		SQSQueueName:     os.Getenv("SQS_QUEUE_NAME"),
 		SQSQueueURL:      os.Getenv("SQS_QUEUE_URL"),
