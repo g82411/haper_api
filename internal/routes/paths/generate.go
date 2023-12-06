@@ -112,7 +112,7 @@ func GenerateImage(c *fiber.Ctx) error {
 		if !v.Success {
 			log.Error("Upload image failed: ", v.Error)
 		}
-		outputUrls = append(outputUrls, fmt.Sprintf("https://%v/%v", setting.CDNHost, v.Key))
+		outputUrls = append(outputUrls, fmt.Sprintf("%v/%v", setting.CDNHost, v.Key))
 	}
 
 	outputUrl := outputUrls[0]
