@@ -44,6 +44,7 @@ func resolveAction(action int) string {
 
 func GenerateImage(c *fiber.Ctx) error {
 	token := c.Cookies("token")
+	setting := config.GetConfig()
 	if token == "" {
 		return c.Redirect(config.GetConfig().CognitoDomain + "/oauth2/authorize?response_type=code&client_id=" + config.GetConfig().CognitoClientId + "&redirect_uri=" + config.GetConfig().RedirectURL)
 	}
@@ -77,7 +78,7 @@ func GenerateImage(c *fiber.Ctx) error {
 			log.Error("Download image failed: ", v.Error)
 		}
 		uploadReq = append(uploadReq, aws.PutObjectInput{
-			Bucket:      "cdn-hyper",
+			Bucket:      setting.GenerateS3Bucket,
 			Key:         fmt.Sprintf("%v.png", uuid.New().String()),
 			Body:        v.Image,
 			ContentType: "image/png",
@@ -95,7 +96,7 @@ func GenerateImage(c *fiber.Ctx) error {
 		if !v.Success {
 			log.Error("Upload image failed: ", v.Error)
 		}
-		outputUrls = append(outputUrls, fmt.Sprintf("https://cdn-hyper.s3.ap-northeast-1.amazonaws.com/%v", v.Key))
+		outputUrls = append(outputUrls, fmt.Sprintf("https://%v/%v", setting.CDNHost, v.Key))
 	}
 
 	outputUrl := outputUrls[0]

@@ -1,7 +1,7 @@
 IMAGE_TAG?=$(shell echo `git rev-parse --short HEAD`)
 DOCKER_PW=$(shell echo `aws ecr get-login-password --region ap-northeast-1`)
 ECR_REPO=843456404290.dkr.ecr.ap-northeast-1.amazonaws.com
-IMAGE_NAME=hyper_api_image
+IMAGE_NAME=haper_api_image
 
 .PHONY: build
 
