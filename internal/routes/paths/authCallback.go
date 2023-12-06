@@ -2,6 +2,7 @@ package paths
 
 import (
 	"context"
+	"fmt"
 	awsConfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/gofiber/fiber/v2"
@@ -13,6 +14,7 @@ func AuthCallback(c *fiber.Ctx) error {
 	code := c.Query("code")
 	token, err := utils.ExtractTokenFromCode(code)
 	if err != nil {
+		fmt.Println("Token exchange error", err)
 		c.Status(fiber.StatusInternalServerError)
 		return err
 	}
@@ -20,8 +22,11 @@ func AuthCallback(c *fiber.Ctx) error {
 	userData, err := utils.ExtractUserInfoFromToken(idToken)
 	if userData.IsDoneSurvey != "true" {
 		err = aws.UpdateUserSurveyStatus(userData.CogUsername, false)
+		fmt.Println("UpdateUserSurveyStatus", err)
+
 	}
 	if err != nil {
+
 		c.Status(fiber.StatusInternalServerError)
 		return err
 	}
@@ -29,6 +34,7 @@ func AuthCallback(c *fiber.Ctx) error {
 	svc := dynamodb.NewFromConfig(cfg)
 	err = aws.PutTokenToDB(svc, userData.Sub, idToken, token.RefreshToken)
 	if err != nil {
+		fmt.Println("Put Token error", err)
 		c.Status(fiber.StatusInternalServerError)
 		return err
 	}
