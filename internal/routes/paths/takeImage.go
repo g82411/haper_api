@@ -26,7 +26,7 @@ func TakeImages(c *fiber.Ctx) error {
 	}
 
 	var articles []models.Article
-	tx := db.Debug().Select("id", "url", "author_name", "keyword")
+	tx := db.Select("id", "url", "author_name", "keyword")
 	tx.Table("articles")
 	tx.Order("created_at desc")
 	tx.Offset((pageInt - 1) * PerPage).Limit(PerPage).Find(&articles)
