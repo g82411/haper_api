@@ -45,6 +45,7 @@ func resolveAction(action int) string {
 func GenerateImage(c *fiber.Ctx) error {
 	token := c.Cookies("token")
 	setting := config.GetConfig()
+	fmt.Println("token", token)
 	if token == "" {
 		return c.Redirect(config.GetConfig().CognitoDomain + "/oauth2/authorize?response_type=code&client_id=" + config.GetConfig().CognitoClientId + "&redirect_uri=" + config.GetConfig().RedirectURL)
 	}
