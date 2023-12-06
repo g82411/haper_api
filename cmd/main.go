@@ -93,6 +93,7 @@ func handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 	for key, value := range httpRes.Header {
 		CommonHeader[key] = value[0] // 假设每个header只有一个值
 	}
+	fmt.Println("Response Header: ", CommonHeader)
 	return events.APIGatewayProxyResponse{
 		StatusCode: httpRes.StatusCode,
 		Headers:    CommonHeader,
