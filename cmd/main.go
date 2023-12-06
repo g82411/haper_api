@@ -90,6 +90,9 @@ func handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 		return events.APIGatewayProxyResponse{Headers: CommonHeader}, err
 	}
 	r, _ := io.ReadAll(httpRes.Body)
+	for key, value := range httpRes.Header {
+		CommonHeader[key] = value[0] // 假设每个header只有一个值
+	}
 	return events.APIGatewayProxyResponse{
 		StatusCode: httpRes.StatusCode,
 		Headers:    CommonHeader,
