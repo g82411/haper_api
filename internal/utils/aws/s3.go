@@ -32,6 +32,25 @@ func NewS3Client(sess *session.Session) *S3Client {
 	}
 }
 
+func (s *S3Client) PutObject(req PutObjectInput) PutObjectOutput {
+	contentType := req.ContentType
+	if contentType == "" {
+		contentType = "binary/octet-stream"
+	}
+	_, err := s.client.PutObject(&s3.PutObjectInput{
+		Bucket:      aws.String(req.Bucket),
+		Key:         aws.String(req.Key),
+		Body:        bytes.NewReader(req.Body),
+		ContentType: aws.String(contentType),
+	})
+	return PutObjectOutput{
+		Success: err == nil,
+		Bucket:  req.Bucket,
+		Key:     req.Key,
+		Error:   err,
+	}
+}
+
 func (s *S3Client) PutObjects(req []PutObjectInput) ([]PutObjectOutput, error) {
 	n := len(req)
 	ret := make([]PutObjectOutput, n)
@@ -41,22 +60,7 @@ func (s *S3Client) PutObjects(req []PutObjectInput) ([]PutObjectOutput, error) {
 		wg.Add(1)
 		go func(obj PutObjectInput, i int) {
 			defer wg.Done()
-			contentType := obj.ContentType
-			if contentType == "" {
-				contentType = "binary/octet-stream"
-			}
-			_, err := s.client.PutObject(&s3.PutObjectInput{
-				Bucket:      aws.String(obj.Bucket),
-				Key:         aws.String(obj.Key),
-				Body:        bytes.NewReader(obj.Body),
-				ContentType: aws.String(contentType),
-			})
-			ret[i] = PutObjectOutput{
-				Success: err == nil,
-				Bucket:  obj.Bucket,
-				Key:     obj.Key,
-				Error:   err,
-			}
+			ret[i] = s.PutObject(obj)
 		}(v, idx)
 	}
 	wg.Wait()

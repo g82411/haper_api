@@ -16,6 +16,36 @@ type DownloadResult struct {
 	Image   []byte
 }
 
+func DownloadImage(url string) DownloadResult {
+	resp, err := http.Get(url)
+	var ret DownloadResult
+	if err != nil {
+		ret = DownloadResult{
+			Success: false,
+			URL:     url,
+			Error:   err,
+		}
+		return ret
+	}
+	defer resp.Body.Close()
+	image, err := io.ReadAll(resp.Body)
+	if err != nil {
+		ret = DownloadResult{
+			Success: false,
+			URL:     url,
+			Error:   err,
+		}
+		return ret
+	}
+	ret = DownloadResult{
+		Success: false,
+		URL:     url,
+		Error:   err,
+		Image:   image,
+	}
+	return ret
+}
+
 func DownloadImages(urls []string) ([]DownloadResult, error) {
 	n := len(urls)
 	ret := make([]DownloadResult, n)
@@ -24,34 +54,8 @@ func DownloadImages(urls []string) ([]DownloadResult, error) {
 		wg.Add(1)
 		go func(url string, i int) {
 			defer wg.Done()
-			resp, err := http.Get(url)
-			if err != nil {
-				ret[i] = DownloadResult{
-					Success: false,
-					URL:     url,
-					Error:   err,
-				}
-				return
-			}
-			defer resp.Body.Close()
-			image, err := io.ReadAll(resp.Body)
-			if err != nil {
-				ret[i] = DownloadResult{
-					Success: false,
-					URL:     url,
-					Error:   err,
-				}
-				return
-			}
-			ret[i] = DownloadResult{
-				Success: true,
-				URL:     url,
-				Error:   nil,
-				Image:   image,
-			}
-
+			ret[i] = DownloadImage(url)
 		}(url, idx)
-
 	}
 	wg.Wait()
 	return ret, nil

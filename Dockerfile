@@ -18,7 +18,7 @@ RUN GOOS=linux CGO_ENABLED=0 go build -o main ./cmd
 FROM public.ecr.aws/lambda/go:1.2023.11.15.20
 
 # 从构建阶段复制编译后的应用程序
-COPY --from=builder /app/main /var/task/main
+COPY --from=builder /app/api/main /var/task/api/main
 
 # 设置 Lambda 的处理程序执行文件
 CMD ["main"]

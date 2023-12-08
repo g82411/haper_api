@@ -11,21 +11,7 @@ type SurveyPayload struct {
 }
 
 func Survey(c *fiber.Ctx) error {
-	token := extractToken(c)
-
-	if token == "" {
-		c.Status(fiber.StatusUnauthorized)
-		err := c.JSON(fiber.Map{
-			"message": "Unauthorized",
-		})
-		return err
-	}
-	accessData, err := utils.ExtractUserInfoFromToken(token)
-	if err != nil {
-		c.Status(fiber.StatusUnauthorized)
-		return err
-	}
-	userSub := accessData.Sub
+	userSub := c.Locals("accessData").(utils.Claims).Sub
 	var body SurveyPayload
 	if err := c.BodyParser(&body); err != nil {
 		return err

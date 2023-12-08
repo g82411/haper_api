@@ -1,20 +1,13 @@
 package models
 
 import (
-	"fmt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"hyper_api/internal/config"
+	"hyper_api/internal/utils/resolver"
 )
 
 func NewDBClient() (*gorm.DB, error) {
-	c := config.GetConfig()
-	dbHost := c.DBHost
-	dbName := c.DBName
-	dbUsername := c.DBUsername
-	dbPassword := c.DBPassword
-
-	dsn := fmt.Sprint("host=", dbHost, " user=", dbUsername, " password=", dbPassword, " dbname=", dbName, " port=5432 sslmode=disable TimeZone=Asia/Taipei")
+	dsn := resolver.FormatSQLDSNFromConfig()
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		return nil, err

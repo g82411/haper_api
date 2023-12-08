@@ -1,12 +1,8 @@
 package paths
 
 import (
-	"context"
 	"fmt"
-	awsConfig "github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/log"
 	"github.com/google/uuid"
 	"hyper_api/internal/config"
 	"hyper_api/internal/dto"
@@ -14,7 +10,6 @@ import (
 	"hyper_api/internal/utils"
 	"hyper_api/internal/utils/aws"
 	"hyper_api/internal/utils/resolver"
-	"strings"
 )
 
 type GenerateRequest struct {
@@ -43,35 +38,13 @@ func resolveAction(action int) string {
 	return actions[action]
 }
 
-func extractToken(c *fiber.Ctx) string {
-	// 从Authorization头部获取值
-	authHeader := c.Get("Authorization")
-
-	// 检查值是否以"Bearer "开头
-	if strings.HasPrefix(authHeader, "Bearer ") {
-		// 提取并返回token部分
-		return strings.TrimPrefix(authHeader, "Bearer ")
-	}
-
-	// 如果没有找到有效的token，则返回空字符串或错误
-	return ""
-}
-
 func GenerateImage(c *fiber.Ctx) error {
-	token := extractToken(c)
 	setting := config.GetConfig()
-	fmt.Println("token", token)
-	if token == "" {
-		return c.Redirect(config.GetConfig().CognitoDomain + "/oauth2/authorize?response_type=code&client_id=" + config.GetConfig().CognitoClientId + "&redirect_uri=" + config.GetConfig().RedirectURL)
-	}
-	cfg, err := awsConfig.LoadDefaultConfig(context.TODO())
-	svc := dynamodb.NewFromConfig(cfg)
-	accessData, err := aws.GetUserInfoByAccessToken(svc, token)
+	accessData := c.Locals("accessData").(utils.Claims)
 	var body GenerateRequest
 	if err := c.BodyParser(&body); err != nil {
 		return err
 	}
-	var uploadReq []aws.PutObjectInput
 	prompt := resolver.GenerateImagePrompt(dto.GenerateImageRequest{
 		Items:    body.Items,
 		Relation: body.Relation,
@@ -79,7 +52,6 @@ func GenerateImage(c *fiber.Ctx) error {
 		Style:    body.Style,
 	})
 	//var generateImageUrls []string
-	generateImageUrls := make([]string, 1)
 
 	ans, _ := utils.GeneratePhotoUsingDallE3(prompt, 1)
 	if ans == nil || len(ans) == 0 {
@@ -87,40 +59,26 @@ func GenerateImage(c *fiber.Ctx) error {
 			"Error": "Generate image failed",
 		})
 	}
-	generateImageUrls[0] = ans[0]
-	downloadResult, _ := utils.DownloadImages(generateImageUrls)
-	for _, v := range downloadResult {
-		if !v.Success {
-			log.Error("Download image failed: ", v.Error)
-		}
-		uploadReq = append(uploadReq, aws.PutObjectInput{
-			Bucket:      setting.GenerateS3Bucket,
-			Key:         fmt.Sprintf("%v.png", uuid.New().String()),
-			Body:        v.Image,
-			ContentType: "image/png",
-		})
+	url := ans[0]
+	downloadResult := utils.DownloadImage(url)
+	uploadReq := aws.PutObjectInput{
+		Bucket:      setting.GenerateS3Bucket,
+		Key:         fmt.Sprintf("%v.png", uuid.New().String()),
+		Body:        downloadResult.Image,
+		ContentType: "image/png",
 	}
 	sess, _ := aws.NewAWSSession()
 	s3Client := aws.NewS3Client(sess)
-	uploadedImages, err := s3Client.PutObjects(uploadReq)
-	if err != nil {
+	uploadedImages := s3Client.PutObject(uploadReq)
+	if uploadedImages.Error != nil {
 		c.Status(fiber.StatusInternalServerError)
-		return err
+		return uploadedImages.Error
 	}
-	var outputUrls []string
-	for _, v := range uploadedImages {
-		if !v.Success {
-			log.Error("Upload image failed: ", v.Error)
-		}
-		outputUrls = append(outputUrls, fmt.Sprintf("%v/%v", setting.CDNHost, v.Key))
-	}
-
-	outputUrl := outputUrls[0]
+	newImageUrl := fmt.Sprintf("%v/%v", setting.CDNHost, uploadedImages.Key)
 	keyword := body.Items[0]
 	if body.Action == 3 {
 		keyword = fmt.Sprintf("%v在%v的%v", body.Items[0], body.Items[1], body.Relation)
 	}
-
 	dbClient, err := models.NewDBClient()
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
@@ -134,7 +92,7 @@ func GenerateImage(c *fiber.Ctx) error {
 	}
 	articleRecord := models.Article{
 		ID:         utils.GenerateShortKey(),
-		Url:        outputUrl,
+		Url:        newImageUrl,
 		Tool:       resolveAction(body.Action),
 		Style:      resolveStyle(body.Style),
 		Keyword:    keyword,
