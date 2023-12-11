@@ -12,13 +12,13 @@ RUN go mod download
 COPY . .
 
 # 编译应用程序，假设主程序位于 cmd/main.go
-RUN GOOS=linux CGO_ENABLED=0 go build -o main ./cmd
+RUN GOOS=linux CGO_ENABLED=0 go build -o main ./cmd/api
 
 # 使用相同的 Lambda Go 运行时镜像作为最终阶段的基础
 FROM public.ecr.aws/lambda/go:1.2023.11.15.20
 
 # 从构建阶段复制编译后的应用程序
-COPY --from=builder /app/api/main /var/task/api/main
+COPY --from=builder /app/main /var/task/main
 
 # 设置 Lambda 的处理程序执行文件
 CMD ["main"]
