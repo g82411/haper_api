@@ -5,4 +5,5 @@ type GenerateImageRequest struct {
 	Items    []string
 	Relation string
 	Style    int
+	Comment  string
 }

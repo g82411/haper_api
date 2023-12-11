@@ -17,6 +17,7 @@ type GenerateRequest struct {
 	Relation string   `json:"relationship"`
 	Action   int      `json:"action"`
 	Style    int      `json:"style"`
+	Comment  string   `json:"comment"`
 }
 
 func resolveStyle(style int) string {
@@ -34,6 +35,9 @@ func resolveAction(action int) string {
 		"物品產生",
 		"人物產生",
 		"物品間關係",
+		"台灣小吃",
+		"節慶用品",
+		"運動",
 	}
 	return actions[action]
 }
@@ -50,6 +54,7 @@ func GenerateImage(c *fiber.Ctx) error {
 		Relation: body.Relation,
 		Action:   body.Action,
 		Style:    body.Style,
+		Comment:  body.Comment,
 	})
 	//var generateImageUrls []string
 	fmt.Printf("Prompt: %v\n", prompt)
@@ -78,6 +83,29 @@ func GenerateImage(c *fiber.Ctx) error {
 	keyword := body.Items[0]
 	if body.Action == 3 {
 		keyword = fmt.Sprintf("%v在%v的%v", body.Items[0], body.Items[1], body.Relation)
+	}
+	if body.Action == 4 {
+		sauceContainer, sauceName := body.Items[0], body.Items[1]
+		sauce := body.Comment
+		saucePos := body.Relation
+		sauceString := ""
+		if sauce != "" && saucePos != "" {
+			sauceString = fmt.Sprintf("，%v在%v", sauce, saucePos)
+		}
+		keyword = fmt.Sprintf("%v的%v%v", sauceContainer, sauceName, sauceString)
+	}
+	if body.Action == 5 {
+		color, itemName, shape := body.Items[0], body.Items[1], body.Items[2]
+		comment := body.Comment
+		keyword = fmt.Sprintf("%v的%v，形狀為%v，%v", color, itemName, shape, comment)
+	}
+	if body.Action == 6 {
+		sportName := body.Items[0]
+		age := body.Comment
+		if age != "" {
+			age = fmt.Sprintf("，%v時期", age)
+		}
+		keyword = fmt.Sprintf("%v%v", sportName, age)
 	}
 	dbClient, err := models.NewDBClient()
 	if err != nil {
