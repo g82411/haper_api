@@ -14,7 +14,7 @@ import (
 
 type GenerateRequest struct {
 	Items    []string `json:"items"`
-	Relation string   `json:"relation"`
+	Relation string   `json:"relationship"`
 	Action   int      `json:"action"`
 	Style    int      `json:"style"`
 }
