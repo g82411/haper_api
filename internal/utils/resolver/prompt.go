@@ -8,8 +8,8 @@ import (
 func generateTaiwanSnackPrompt(req dto.GenerateImageRequest) string {
 	snackContainer, snackName := req.Items[0], req.Items[1]
 	sauce := ""
-	if req.Comment != "" && req.Relation != "" {
-		sauce = fmt.Sprintf("%v在%v", req.Comment, req.Relation)
+	if req.Comment != "" {
+		sauce = fmt.Sprintf("%v", req.Comment)
 	}
 	mainDescription := fmt.Sprintf("幫我繪製台灣小吃，一個在%v的%v", snackContainer, snackName)
 	if sauce != "" {
