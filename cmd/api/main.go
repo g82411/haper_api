@@ -54,7 +54,13 @@ func APIGatewayRequestToHTTPRequest(req events.APIGatewayProxyRequest) (*http.Re
 // 定义 Lambda Handler
 
 func handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	CommonHeader := map[string]string{}
+	CommonHeader := map[string]string{
+		"Content-Type":                     "application/json",
+		"Access-Control-Allow-Headers":     "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent",
+		"Access-Control-Allow-Methods":     "OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD",
+		"Access-Control-Allow-Origin":      req.Headers["origin"],
+		"Access-Control-Allow-Credentials": "true",
+	}
 	// 初始化 Fiber
 	app := fiber.New()
 
