@@ -22,6 +22,7 @@ type GenerateRequest struct {
 
 func resolveStyle(style int) string {
 	styles := []string{
+		"卡通插畫",
 		"單一線條、色塊",
 		"平面插畫",
 		"擬真",
