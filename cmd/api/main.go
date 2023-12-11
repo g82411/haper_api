@@ -10,7 +10,6 @@ import (
 	"github.com/aws/aws-lambda-go/lambdacontext"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"hyper_api/internal/config"
 	"hyper_api/internal/routes"
 	"io"
 	"log"
@@ -55,19 +54,12 @@ func APIGatewayRequestToHTTPRequest(req events.APIGatewayProxyRequest) (*http.Re
 // 定义 Lambda Handler
 
 func handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	c := config.GetConfig()
-	CommonHeader := map[string]string{
-		"Content-Type":                     "application/json",
-		"Access-Control-Allow-Headers":     "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent",
-		"Access-Control-Allow-Methods":     "OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD",
-		"Access-Control-Allow-Origin":      c.AllowOrigin,
-		"Access-Control-Allow-Credentials": "true",
-	}
+	CommonHeader := map[string]string{}
 	// 初始化 Fiber
 	app := fiber.New()
 
 	// 定义路由
-	setupRoutes(app)
+	setUpApp(app)
 	fmt.Printf("Request Body: %v\n", req.Body)
 	fmt.Printf("Request Header: %v\n", req.Headers)
 
@@ -101,11 +93,14 @@ func handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 	}, nil
 }
 
-func setupRoutes(app *fiber.App) {
-	app.Get("/ping", func(c *fiber.Ctx) error {
-		return c.JSON(fiber.Map{"Message": "pong"})
-	})
+func setUpApp(app *fiber.App) {
 	routes.BindingRoutes(app)
+	app.Use(cors.New(cors.Config{
+		AllowOriginsFunc: func(origin string) bool { return true },
+		AllowHeaders:     "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent",
+		AllowCredentials: true,
+		AllowMethods:     "GET,POST,HEAD,PUT,DELETE,PATCH",
+	}))
 }
 
 func main() {
@@ -116,13 +111,7 @@ func main() {
 		// 作为独立的 HTTP 服务运行
 		// TODO: refresh middle ware
 		app := fiber.New()
-		app.Use(cors.New(cors.Config{
-			AllowOrigins:     "http://localhost:3000",
-			AllowHeaders:     "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent",
-			AllowCredentials: true,
-			AllowMethods:     "GET,POST,HEAD,PUT,DELETE,PATCH",
-		}))
-		setupRoutes(app)
+		setUpApp(app)
 		log.Fatal(app.Listen(":8080"))
 	}
 }
