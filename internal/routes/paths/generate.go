@@ -52,7 +52,7 @@ func GenerateImage(c *fiber.Ctx) error {
 		Style:    body.Style,
 	})
 	//var generateImageUrls []string
-
+	fmt.Printf("Prompt: %v\n", prompt)
 	ans, _ := utils.GeneratePhotoUsingDallE3(prompt, 1)
 	if ans == nil || len(ans) == 0 {
 		return c.JSON(fiber.Map{
