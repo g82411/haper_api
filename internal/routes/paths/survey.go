@@ -8,6 +8,10 @@ import (
 
 type SurveyPayload struct {
 	Reason string `json:"reason"`
+	Age    string `json:"age"`
+	Career string `json:"career"`
+	Gender string `json:"gender"`
+	Name   string `json:"name"`
 }
 
 func Survey(c *fiber.Ctx) error {
@@ -37,7 +41,13 @@ func Survey(c *fiber.Ctx) error {
 		c.Status(fiber.StatusInternalServerError)
 		return err
 	}
-	err = aws.UpdateUserSurveyStatus(userInfo.CogUsername, true)
+	err = aws.UpdateUserInfo(
+		userInfo.CogUsername,
+		body.Name,
+		body.Age,
+		body.Career,
+		body.Gender,
+	)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return err
