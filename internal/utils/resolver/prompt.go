@@ -37,7 +37,7 @@ func generateSport(req dto.GenerateImageRequest) string {
 		age = fmt.Sprintf("，人物年齡設定在%v時期。", age)
 	}
 	mainDescription := fmt.Sprintf("請幫我繪製運動%v%v\n", sportName, age)
-	additionalDescription := "圖片貼近此運動會做出的動作。圖片僅有動作及配件而已，人物一位即可，人物要有清楚的五官。\n以卡通插畫的方式繪製，底圖為白色，線條乾淨俐落"
+	additionalDescription := "圖片貼近此運動會做出的動作。圖片僅有動作及配件而已，人物一位即可，人物要有清楚的五官，旁邊不要有其他元素。\n以卡通插畫的方式繪製，底圖為白色，線條乾淨俐落"
 	return fmt.Sprintf("%v%v", mainDescription, additionalDescription)
 }
 

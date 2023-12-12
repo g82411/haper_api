@@ -10,6 +10,7 @@ import (
 	"github.com/aws/aws-lambda-go/lambdacontext"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"hyper_api/internal/config"
 	"hyper_api/internal/routes"
 	"io"
 	"log"
@@ -54,11 +55,12 @@ func APIGatewayRequestToHTTPRequest(req events.APIGatewayProxyRequest) (*http.Re
 // 定义 Lambda Handler
 
 func handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	c := config.GetConfig()
 	CommonHeader := map[string]string{
 		"Content-Type":                     "application/json",
 		"Access-Control-Allow-Headers":     "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent",
 		"Access-Control-Allow-Methods":     "OPTIONS,GET,PUT,POST,DELETE,PATCH,HEAD",
-		"Access-Control-Allow-Origin":      req.Headers["origin"],
+		"Access-Control-Allow-Origin":      c.AllowOrigin,
 		"Access-Control-Allow-Credentials": "true",
 	}
 	// 初始化 Fiber
@@ -100,13 +102,14 @@ func handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 }
 
 func setUpApp(app *fiber.App) {
-	routes.BindingRoutes(app)
 	app.Use(cors.New(cors.Config{
 		AllowOriginsFunc: func(origin string) bool { return true },
 		AllowHeaders:     "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent",
 		AllowCredentials: true,
 		AllowMethods:     "GET,POST,HEAD,PUT,DELETE,PATCH",
 	}))
+	routes.BindingRoutes(app)
+
 }
 
 func main() {
@@ -117,6 +120,12 @@ func main() {
 		// 作为独立的 HTTP 服务运行
 		// TODO: refresh middle ware
 		app := fiber.New()
+		app.Use(cors.New(cors.Config{
+			AllowOriginsFunc: func(origin string) bool { return true },
+			AllowHeaders:     "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent",
+			AllowCredentials: true,
+			AllowMethods:     "GET,POST,HEAD,PUT,DELETE,PATCH",
+		}))
 		setUpApp(app)
 		log.Fatal(app.Listen(":8080"))
 	}
