@@ -38,5 +38,6 @@ func AuthMiddleware(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
 	}
 	c.Locals("accessData", accessData)
+	c.Locals("accessToken", token)
 	return c.Next()
 }

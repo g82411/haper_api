@@ -17,6 +17,39 @@ type Claims struct {
 	IsDoneSurvey string `json:"custom:isDoneSurvey"`
 }
 
+func getTokenConfig() *oauth2.Config {
+	env := config.GetConfig()
+	oauthConfig := &oauth2.Config{
+		ClientID:    env.CognitoClientId,
+		RedirectURL: env.RedirectURL,
+		Endpoint: oauth2.Endpoint{
+			AuthURL:  env.CognitoDomain + "/oauth2/authorize",
+			TokenURL: env.CognitoDomain + "/oauth2/token",
+		},
+		Scopes: []string{"email", "profile", "openid"},
+	}
+
+	return oauthConfig
+}
+
+func RefreshToken(accessToken, refreshToken string, forceUpdate bool) (*oauth2.Token, error) {
+	oauthConfig := getTokenConfig()
+	var token *oauth2.Token
+	if forceUpdate {
+		token = &oauth2.Token{
+			RefreshToken: refreshToken,
+		}
+	} else {
+		token = &oauth2.Token{
+			RefreshToken: refreshToken,
+			AccessToken:  accessToken,
+		}
+	}
+	tokenSource := oauthConfig.TokenSource(oauth2.NoContext, token)
+	newToken, err := tokenSource.Token()
+	return newToken, err
+}
+
 func ExtractTokenFromCode(code string) (*oauth2.Token, error) {
 	env := config.GetConfig()
 
