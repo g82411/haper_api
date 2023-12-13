@@ -108,6 +108,9 @@ func GenerateImage(c *fiber.Ctx) error {
 		}
 		keyword = fmt.Sprintf("%v%v", sportName, age)
 	}
+	if body.Comment != "" {
+		keyword = fmt.Sprintf("%v,%v", keyword, body.Comment)
+	}
 	dbClient, err := models.NewDBClient()
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
