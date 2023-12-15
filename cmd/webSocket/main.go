@@ -59,6 +59,9 @@ func Handler(ctx context.Context, event events.APIGatewayWebsocketProxyRequest) 
 	if socketEvent.Action == "taskDone" {
 		err = socketRoute.TaskDone(nextCtx, socketEvent)
 	}
+	if err != nil {
+		return fmt.Errorf("error running task %v", err)
+	}
 	return err
 }
 
