@@ -26,15 +26,18 @@ func handleWebSocketRequest(ctx context.Context, event events.APIGatewayWebsocke
 	case "$disconnect":
 		// 处理断开连接事件
 		fmt.Println("Disconnected:", event.RequestContext.ConnectionID)
-	case "$default":
-		// 处理默认路由（接收消息）
-		var message map[string]interface{}
 		err := Handler(ctx, event)
 		if err != nil {
 			fmt.Printf("Error unmarshalling message: %v\n", err)
 			return events.APIGatewayProxyResponse{}, err
 		}
-		fmt.Printf("Received message: %v\n", message)
+	case "$default":
+		// 处理默认路由（接收消息）
+		err := Handler(ctx, event)
+		if err != nil {
+			fmt.Printf("Error unmarshalling message: %v\n", err)
+			return events.APIGatewayProxyResponse{}, err
+		}
 	}
 
 	// 返回响应
@@ -52,6 +55,9 @@ func Handler(ctx context.Context, event events.APIGatewayWebsocketProxyRequest) 
 	nextCtx := buildContext(ctx, event)
 	if err != nil {
 		return fmt.Errorf("error parsing message body %v", err)
+	}
+	if event.RequestContext.RouteKey == "$disconnect" {
+		err = socketRoute.Disconnect(nextCtx, socketEvent)
 	}
 	if socketEvent.Action == "subscribe" {
 		err = socketRoute.Subscribe(nextCtx, socketEvent)
