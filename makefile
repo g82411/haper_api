@@ -14,7 +14,7 @@ build_api:
 
 build_socket:
 	@docker login -u AWS -p $(DOCKER_PW) $(ECR_REPO)
-	docker build -t $(SOCKET_IMAGE_NAME):$(IMAGE_TAG) -f Dockerfile .
+	docker build -t $(SOCKET_IMAGE_NAME):$(IMAGE_TAG) -f socket.dockerfile .
 	docker tag $(SOCKET_IMAGE_NAME):$(IMAGE_TAG) $(ECR_REPO)/$(SOCKET_IMAGE_NAME):$(IMAGE_TAG)
 	docker push $(ECR_REPO)/$(SOCKET_IMAGE_NAME):$(IMAGE_TAG)
 
