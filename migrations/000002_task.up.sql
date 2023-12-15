@@ -10,5 +10,5 @@ create table tasks
     updated_at  bigint
 );
 
-alter table articles add column valid boolean default true not null;
+alter table articles add column valid boolean default false not null;
 

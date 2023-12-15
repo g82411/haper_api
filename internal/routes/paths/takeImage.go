@@ -29,6 +29,7 @@ func TakeImages(c *fiber.Ctx) error {
 	tx := db.Select("id", "url", "author_name", "keyword")
 	tx.Table("articles")
 	tx.Order("created_at desc")
+	tx.Where("valid = ?", true)
 	tx.Offset((pageInt - 1) * PerPage).Limit(PerPage).Find(&articles)
 	result := []map[string]interface{}{}
 	for _, article := range articles {

@@ -3,8 +3,9 @@ DOCKER_PW=$(shell echo `aws ecr get-login-password --region ap-northeast-1`)
 ECR_REPO=843456404290.dkr.ecr.ap-northeast-1.amazonaws.com
 IMAGE_NAME=haper_api_image
 SOCKET_IMAGE_NAME=haper_socket_image
+WORKER_IMAGE_NAME=haper_worker_image
 
-.PHONY: build_api migrate_new migrate_up build_socket
+.PHONY: build_api migrate_new migrate_up build_socket build_worker
 
 build_api:
 	@docker login -u AWS -p $(DOCKER_PW) $(ECR_REPO)
@@ -17,6 +18,13 @@ build_socket:
 	docker build -t $(SOCKET_IMAGE_NAME):$(IMAGE_TAG) -f socket.dockerfile .
 	docker tag $(SOCKET_IMAGE_NAME):$(IMAGE_TAG) $(ECR_REPO)/$(SOCKET_IMAGE_NAME):$(IMAGE_TAG)
 	docker push $(ECR_REPO)/$(SOCKET_IMAGE_NAME):$(IMAGE_TAG)
+
+
+build_worker:
+	@docker login -u AWS -p $(DOCKER_PW) $(ECR_REPO)
+	docker build -t $(WORKER_IMAGE_NAME):$(IMAGE_TAG) -f socket.dockerfile .
+	docker tag $(WORKER_IMAGE_NAME):$(IMAGE_TAG) $(ECR_REPO)/$(WORKER_IMAGE_NAME):$(IMAGE_TAG)
+	docker push $(ECR_REPO)/$(WORKER_IMAGE_NAME):$(IMAGE_TAG)
 
 migrate_new:
 	migrate create -ext sql -dir ./migrations -seq $(name)
