@@ -96,14 +96,14 @@ func PutSubscriberToDB(svc *dynamodb.Client, subscriber, taskId string) error {
 
 func GetSubscriberFromDB(svc *dynamodb.Client, taskId string) ([]string, error) {
 	c := config.GetConfig()
-	input := &dynamodb.QueryInput{
+	input := &dynamodb.ScanInput{
 		TableName: aws.String(c.SubscriberTable),
 		ExpressionAttributeValues: map[string]types.AttributeValue{
 			":taskId": &types.AttributeValueMemberS{Value: taskId},
 		},
-		KeyConditionExpression: aws.String("taskId = :taskId"),
+		FilterExpression: aws.String("taskId = :taskId"),
 	}
-	result, err := svc.Query(context.Background(), input)
+	result, err := svc.Scan(context.Background(), input)
 	if err != nil {
 		return nil, err
 	}

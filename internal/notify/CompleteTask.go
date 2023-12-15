@@ -16,6 +16,11 @@ type CompleteTaskMessage struct {
 	RecipientID string `json:"recipientID"`
 }
 
+type CompleteTaskAction struct {
+	Action string `json:"action"`
+	Body   string `json:"body"`
+}
+
 func CompleteTask(task dto.GenerateImageTask) error {
 	setting := config.GetConfig()
 	u := url.URL{Scheme: "wss", Host: setting.WebSocketHost, Path: setting.WebSocketPath}
@@ -31,7 +36,12 @@ func CompleteTask(task dto.GenerateImageTask) error {
 		Type:        "imageGenerate",
 		Status:      "success",
 	}
+
 	stringMessage, err := json.Marshal(message)
+	stringMessage, err = json.Marshal(CompleteTaskAction{
+		Action: "taskDone",
+		Body:   string(stringMessage),
+	})
 	if err != nil {
 		return fmt.Errorf("error marshalling message %v", err)
 	}
