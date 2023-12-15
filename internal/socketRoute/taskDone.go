@@ -46,6 +46,9 @@ func TaskDone(ctx context.Context, event dto.EventBody) error {
 			ConnectionId: aws.String(subscriber),
 			Data:         []byte(event.Body),
 		})
+		if err != nil {
+			fmt.Errorf("error sending message %v", err)
+		}
 	}
 	return nil
 }
