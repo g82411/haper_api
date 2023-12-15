@@ -24,7 +24,7 @@ func TaskDone(ctx context.Context, event dto.EventBody) error {
 		return err
 	}
 	client := apigw.NewFromConfig(cfg, func(o *apigw.Options) {
-		o.EndpointResolver = apigw.EndpointResolverFromURL(c.WebSocketURL)
+		o.BaseEndpoint = aws.String(c.WebSocketURL)
 	})
 	svc, err := awsUtil.NewDynamoDBClient()
 	if err != nil {
@@ -40,15 +40,14 @@ func TaskDone(ctx context.Context, event dto.EventBody) error {
 	if err != nil {
 		return err
 	}
-	message := "Hello, WebSocket!"
 	for _, subscriber := range subscribers {
 		// 发送消息
 		_, err = client.PostToConnection(context.TODO(), &apigw.PostToConnectionInput{
 			ConnectionId: aws.String(subscriber),
-			Data:         []byte(message),
+			Data:         []byte(event.Body),
 		})
 		if err != nil {
-			fmt.Errorf("error sending message %v", err)
+			return fmt.Errorf("error sending message %v", err)
 		}
 	}
 	return nil
