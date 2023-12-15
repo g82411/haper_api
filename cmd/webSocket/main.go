@@ -47,7 +47,7 @@ func handleWebSocketRequest(ctx context.Context, event events.APIGatewayWebsocke
 func Handler(ctx context.Context, event events.APIGatewayWebsocketProxyRequest) error {
 	body := event.Body
 	var socketEvent dto.EventBody
-	err := json.Unmarshal([]byte(body), &event)
+	err := json.Unmarshal([]byte(body), &socketEvent)
 	nextCtx := buildContext(ctx, event)
 	if err != nil {
 		return fmt.Errorf("error parsing message body %v", err)
