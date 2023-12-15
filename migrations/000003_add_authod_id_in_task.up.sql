@@ -1,0 +1,1 @@
+alter table tasks add column author_id varchar(255) not null default '';
