@@ -6,7 +6,6 @@ import (
 	"github.com/gorilla/websocket"
 	"hyper_api/internal/config"
 	"hyper_api/internal/dto"
-	"net/url"
 )
 
 type CompleteTaskMessage struct {
@@ -23,9 +22,7 @@ type CompleteTaskAction struct {
 
 func CompleteTask(task dto.GenerateImageTask) error {
 	setting := config.GetConfig()
-	u := url.URL{Scheme: "wss", Host: setting.WebSocketHost, Path: setting.WebSocketPath}
-
-	connection, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
+	connection, _, err := websocket.DefaultDialer.Dial(setting.WebSocketURL, nil)
 	if err != nil {
 		return fmt.Errorf("error dialing websocket %v", err)
 	}
