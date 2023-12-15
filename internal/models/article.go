@@ -8,6 +8,7 @@ type Article struct {
 	Keyword    string
 	AuthorId   string
 	AuthorName string
+	Valid      bool `gorm:"default:true"`
 	DeletedAt  int64
 	CreatedAt  int64 `gorm:"autoCreateTime"`
 	UpdatedAt  int64 `gorm:"autoUpdateTime:milli"`

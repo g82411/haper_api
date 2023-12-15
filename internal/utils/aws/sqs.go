@@ -1,33 +1,37 @@
 package aws
 
 import (
+	"context"
 	"encoding/json"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/sqs"
-	"hyper_api/internal/config"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	awsConfig "github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/sqs"
+	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
 )
 
 type SQSClient struct {
-	session  *session.Session
-	client   *sqs.SQS
+	client   *sqs.Client
 	queueUrl string
 }
 
-func NewSQSClient() (*SQSClient, error) {
-	setting := config.GetConfig()
-	region := setting.AWSRegion
-	queueUrl := setting.SQSQueueURL
+func NewSQSClient(queueUrl string) (*SQSClient, error) {
+	cfg, err := awsConfig.LoadDefaultConfig(context.TODO())
+	if err != nil {
+		panic("configuration error, " + err.Error())
+	}
 
-	sess, err := session.NewSession(&aws.Config{
-		Region: aws.String(region), // 替换为你的 AWS 区域
-	})
+	// 创建 SQS 客户端
+	client := sqs.NewFromConfig(cfg)
+	if err != nil {
+		panic("configuration error, " + err.Error())
+	}
+
+	// 创建 SQS 客户端
 	if err != nil {
 		return nil, err
 	}
 	return &SQSClient{
-		session:  sess,
-		client:   sqs.New(sess),
+		client:   client,
 		queueUrl: queueUrl,
 	}, nil
 }
@@ -45,9 +49,30 @@ func (s *SQSClient) SendJSONMessage(message interface{}) error {
 	if err != nil {
 		return err
 	}
-	_, err = s.client.SendMessage(&sqs.SendMessageInput{
+	_, err = s.client.SendMessage(context.TODO(), &sqs.SendMessageInput{
 		MessageBody: aws.String(jsonMessage),
 		QueueUrl:    aws.String(s.queueUrl),
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *SQSClient) PullMessages() (*sqs.ReceiveMessageOutput, error) {
+	result, err := s.client.ReceiveMessage(context.TODO(), &sqs.ReceiveMessageInput{
+		QueueUrl: aws.String(s.queueUrl),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (s *SQSClient) DeleteMessage(message types.Message) error {
+	_, err := s.client.DeleteMessage(context.TODO(), &sqs.DeleteMessageInput{
+		QueueUrl:      aws.String(s.queueUrl),
+		ReceiptHandle: message.ReceiptHandle,
 	})
 	if err != nil {
 		return err

@@ -13,6 +13,7 @@ type Config struct {
 	OpenAIKey       string
 	TokenTable      string
 	SurveyTable     string
+	SubscriberTable string
 	CognitoUserPool string
 	AllowOrigin     string
 	// DB
@@ -23,6 +24,11 @@ type Config struct {
 	CDNHost          string
 	GenerateS3Bucket string
 	WebHOST          string
+	// web socket
+	WebSocketHost string
+	WebSocketPath string
+	WebSocketURL  string
+	SQSQueueUrl   string
 }
 
 func GetConfig() *Config {
@@ -37,6 +43,7 @@ func GetConfig() *Config {
 		CognitoUserPool:  os.Getenv("COGNITO_USER_POOL"),
 		TokenTable:       os.Getenv("TOKEN_TABLE"),
 		SurveyTable:      os.Getenv("SURVEY_TABLE"),
+		SubscriberTable:  os.Getenv("SUBSCRIBER_TABLE"),
 		AllowOrigin:      os.Getenv("ALLOW_ORIGIN"),
 		DBHost:           os.Getenv("DB_HOST"),
 		DBPassword:       os.Getenv("DB_PASSWORD"),
@@ -45,5 +52,9 @@ func GetConfig() *Config {
 		RedirectURL:      os.Getenv("REDIRECT_URL"),
 		CDNHost:          os.Getenv("CDN_HOST"),
 		GenerateS3Bucket: os.Getenv("GENERATE_S3_BUCKET"),
+		WebSocketHost:    os.Getenv("WEB_SOCKET_HOST"),
+		WebSocketPath:    os.Getenv("WEB_SOCKET_PATH"),
+		WebSocketURL:     os.Getenv("WEB_SOCKET_URL"),
+		SQSQueueUrl:      os.Getenv("SQS_QUEUE_URL"),
 	}
 }

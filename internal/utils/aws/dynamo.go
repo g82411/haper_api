@@ -80,3 +80,48 @@ func GetUserInfoByAccessToken(svc *dynamodb.Client, accessToken string) (utils.C
 	}
 	return userData, nil
 }
+
+func PutSubscriberToDB(svc *dynamodb.Client, subscriber, taskId string) error {
+	c := config.GetConfig()
+	input := &dynamodb.PutItemInput{
+		TableName: aws.String(c.SubscriberTable),
+		Item: map[string]types.AttributeValue{
+			"id":     &types.AttributeValueMemberS{Value: subscriber},
+			"taskId": &types.AttributeValueMemberS{Value: taskId},
+		},
+	}
+	_, err := svc.PutItem(context.Background(), input)
+	return err
+}
+
+func GetSubscriberFromDB(svc *dynamodb.Client, taskId string) ([]string, error) {
+	c := config.GetConfig()
+	input := &dynamodb.QueryInput{
+		TableName: aws.String(c.SubscriberTable),
+		ExpressionAttributeValues: map[string]types.AttributeValue{
+			":taskId": &types.AttributeValueMemberS{Value: taskId},
+		},
+		KeyConditionExpression: aws.String("taskId = :taskId"),
+	}
+	result, err := svc.Query(context.Background(), input)
+	if err != nil {
+		return nil, err
+	}
+	var ret []string
+	for _, item := range result.Items {
+		ret = append(ret, item["id"].(*types.AttributeValueMemberS).Value)
+	}
+	return ret, nil
+}
+
+func UnsubscribeFromDB(svc *dynamodb.Client, subscriber string) error {
+	c := config.GetConfig()
+	input := &dynamodb.DeleteItemInput{
+		TableName: aws.String(c.SubscriberTable),
+		Key: map[string]types.AttributeValue{
+			"id": &types.AttributeValueMemberS{Value: subscriber},
+		},
+	}
+	_, err := svc.DeleteItem(context.Background(), input)
+	return err
+}

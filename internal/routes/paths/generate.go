@@ -3,12 +3,10 @@ package paths
 import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
-	"hyper_api/internal/config"
+	"hyper_api/internal/bussinessLogic"
 	"hyper_api/internal/dto"
 	"hyper_api/internal/models"
 	"hyper_api/internal/utils"
-	"hyper_api/internal/utils/aws"
 	"hyper_api/internal/utils/resolver"
 )
 
@@ -44,7 +42,6 @@ func resolveAction(action int) string {
 }
 
 func GenerateImage(c *fiber.Ctx) error {
-	setting := config.GetConfig()
 	accessData := c.Locals("accessData").(utils.Claims)
 	var body GenerateRequest
 	if err := c.BodyParser(&body); err != nil {
@@ -59,28 +56,7 @@ func GenerateImage(c *fiber.Ctx) error {
 	})
 	//var generateImageUrls []string
 	fmt.Printf("Prompt: %v\n", prompt)
-	ans, _ := utils.GeneratePhotoUsingDallE3(prompt, 1)
-	if ans == nil || len(ans) == 0 {
-		return c.JSON(fiber.Map{
-			"Error": "Generate image failed",
-		})
-	}
-	url := ans[0]
-	downloadResult := utils.DownloadImage(url)
-	uploadReq := aws.PutObjectInput{
-		Bucket:      setting.GenerateS3Bucket,
-		Key:         fmt.Sprintf("%v.png", uuid.New().String()),
-		Body:        downloadResult.Image,
-		ContentType: "image/png",
-	}
-	sess, _ := aws.NewAWSSession()
-	s3Client := aws.NewS3Client(sess)
-	uploadedImages := s3Client.PutObject(uploadReq)
-	if uploadedImages.Error != nil {
-		c.Status(fiber.StatusInternalServerError)
-		return uploadedImages.Error
-	}
-	newImageUrl := fmt.Sprintf("%v/%v", setting.CDNHost, uploadedImages.Key)
+
 	keyword := body.Items[0]
 	if body.Action == 3 {
 		keyword = fmt.Sprintf("%v在%v的%v", body.Items[0], body.Items[1], body.Relation)
@@ -116,20 +92,20 @@ func GenerateImage(c *fiber.Ctx) error {
 		c.Status(fiber.StatusInternalServerError)
 		return err
 	}
-	// TODO: Remove this line before deploy
-	err = dbClient.AutoMigrate(&models.Article{})
-	if err != nil {
-		c.Status(fiber.StatusInternalServerError)
-		return err
-	}
 	articleRecord := models.Article{
 		ID:         utils.GenerateShortKey(),
-		Url:        newImageUrl,
 		Tool:       resolveAction(body.Action),
 		Style:      resolveStyle(body.Style),
 		Keyword:    keyword,
 		AuthorId:   accessData.Sub,
+		Valid:      false,
 		AuthorName: accessData.Name,
+	}
+	taskRecord := models.Task{
+		ID:       utils.GenerateShortKey(),
+		Prompt:   prompt,
+		AuthorId: accessData.Sub,
+		Status:   0,
 	}
 	err = dbClient.Create(&articleRecord).Error
 	if err != nil {
@@ -137,8 +113,24 @@ func GenerateImage(c *fiber.Ctx) error {
 		return err
 	}
 
+	err = dbClient.Create(&taskRecord).Error
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return err
+	}
+	err = bussinessLogic.PutImageRequestToQueue(
+		taskRecord.ID,
+		accessData.Sub,
+		prompt,
+		articleRecord.ID,
+	)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return err
+	}
+	c.Status(fiber.StatusAccepted)
 	return c.JSON(fiber.Map{
-		"id":  articleRecord.ID,
-		"url": articleRecord.Url,
+		"article_id": articleRecord.ID,
+		"task_id":    taskRecord.ID,
 	})
 }
