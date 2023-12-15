@@ -40,11 +40,12 @@ func TaskDone(ctx context.Context, event dto.EventBody) error {
 	if err != nil {
 		return err
 	}
+	message := "Hello, WebSocket!"
 	for _, subscriber := range subscribers {
 		// 发送消息
 		_, err = client.PostToConnection(context.TODO(), &apigw.PostToConnectionInput{
 			ConnectionId: aws.String(subscriber),
-			Data:         []byte(event.Body),
+			Data:         []byte(message),
 		})
 		if err != nil {
 			fmt.Errorf("error sending message %v", err)
