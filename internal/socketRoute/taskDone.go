@@ -3,6 +3,7 @@ package socketRoute
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	awsConfig "github.com/aws/aws-sdk-go-v2/config"
 	apigw "github.com/aws/aws-sdk-go-v2/service/apigatewaymanagementapi"
 	"github.com/aws/aws-sdk-go/aws"
@@ -31,6 +32,7 @@ func TaskDone(ctx context.Context, event dto.EventBody) error {
 	}
 	var task Task
 	err = json.Unmarshal([]byte(event.Body), &task)
+	fmt.Printf("task: %v\n", task)
 	if err != nil {
 		return err
 	}

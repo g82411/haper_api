@@ -2,6 +2,7 @@ package aws
 
 import (
 	"context"
+	"fmt"
 	awsConfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
@@ -111,6 +112,7 @@ func GetSubscriberFromDB(svc *dynamodb.Client, taskId string) ([]string, error) 
 	for _, item := range result.Items {
 		ret = append(ret, item["id"].(*types.AttributeValueMemberS).Value)
 	}
+	fmt.Printf("subscribers: %v", ret)
 	return ret, nil
 }
 
