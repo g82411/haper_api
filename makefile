@@ -22,7 +22,7 @@ build_socket:
 
 build_worker:
 	@docker login -u AWS -p $(DOCKER_PW) $(ECR_REPO)
-	docker build -t $(WORKER_IMAGE_NAME):$(IMAGE_TAG) -f socket.dockerfile .
+	docker build -t $(WORKER_IMAGE_NAME):$(IMAGE_TAG) -f worker.dockerfile .
 	docker tag $(WORKER_IMAGE_NAME):$(IMAGE_TAG) $(ECR_REPO)/$(WORKER_IMAGE_NAME):$(IMAGE_TAG)
 	docker push $(ECR_REPO)/$(WORKER_IMAGE_NAME):$(IMAGE_TAG)
 

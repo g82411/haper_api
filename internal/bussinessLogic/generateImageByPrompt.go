@@ -26,7 +26,7 @@ func GenerateImageByPrompt(prompt string) (string, error) {
 	s3Client := aws.NewS3Client(sess)
 	uploadedImage := s3Client.PutObject(uploadReq)
 	if uploadedImage.Error != nil {
-		return "", uploadedImage.Error
+		return "", fmt.Errorf("error when upload image to s3 %v", uploadedImage.Error)
 	}
 	newImageUrl := fmt.Sprintf("%v/%v", setting.CDNHost, uploadedImage.Key)
 	return newImageUrl, nil

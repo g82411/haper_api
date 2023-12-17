@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"fmt"
 	"gorm.io/gorm"
 	"hyper_api/internal/bussinessLogic"
 	"hyper_api/internal/dto"
@@ -39,19 +40,20 @@ func saveImageToArticle(db *gorm.DB, articleId, imageUrl string) error {
 func GenerateImageToOpenAI(task dto.GenerateImageTask) error {
 	generatedImage, err := bussinessLogic.GenerateImageByPrompt(task.Prompt)
 	if err != nil {
-		return err
+		return fmt.Errorf("generate Image error %v", err)
 	}
+
 	dbClient, err := models.NewDBClient()
 	if err != nil {
-		return err
+		return fmt.Errorf("error when establish db connection %v", err)
 	}
 	err = markTaskAsDone(dbClient, task.TaskID)
 	if err != nil {
-		return err
+		return fmt.Errorf("error when mark as complete %v", err)
 	}
 	err = saveImageToArticle(dbClient, task.ArticleId, generatedImage)
 	if err != nil {
-		return err
+		return fmt.Errorf("error when save image to article %v", err)
 	}
 	return nil
 }
