@@ -47,6 +47,24 @@ func GenerateImage(c *fiber.Ctx) error {
 	if err := c.BodyParser(&body); err != nil {
 		return err
 	}
+	dbClient, err := models.NewDBClient()
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return err
+	}
+	userSub := accessData.Sub
+
+	hasEnoughCredit, err := bussinessLogic.CheckUserHaveEnoughCredit(userSub)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return err
+	}
+	if !hasEnoughCredit {
+		c.Status(fiber.StatusPaymentRequired)
+		return c.JSON(fiber.Map{
+			"message": "今日額度已用完",
+		})
+	}
 	prompt := resolver.GenerateImagePrompt(dto.GenerateImageRequest{
 		Items:    body.Items,
 		Relation: body.Relation,
@@ -87,11 +105,7 @@ func GenerateImage(c *fiber.Ctx) error {
 	if body.Comment != "" {
 		keyword = fmt.Sprintf("%v,%v", keyword, body.Comment)
 	}
-	dbClient, err := models.NewDBClient()
-	if err != nil {
-		c.Status(fiber.StatusInternalServerError)
-		return err
-	}
+
 	articleRecord := models.Article{
 		ID:         utils.GenerateShortKey(),
 		Tool:       resolveAction(body.Action),
@@ -118,19 +132,26 @@ func GenerateImage(c *fiber.Ctx) error {
 		c.Status(fiber.StatusInternalServerError)
 		return err
 	}
-	err = bussinessLogic.PutImageRequestToQueue(
-		taskRecord.ID,
-		accessData.Sub,
-		prompt,
-		articleRecord.ID,
-	)
+	//err = bussinessLogic.PutImageRequestToQueue(
+	//	taskRecord.ID,
+	//	accessData.Sub,
+	//	prompt,
+	//	articleRecord.ID,
+	//)
+	//if err != nil {
+	//	c.Status(fiber.StatusInternalServerError)
+	//	return err
+	//}
+	needSurvey, err := bussinessLogic.CheckNeedJumpSurveyToUser(userSub)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return err
 	}
+
 	c.Status(fiber.StatusAccepted)
 	return c.JSON(fiber.Map{
-		"article_id": articleRecord.ID,
-		"task_id":    taskRecord.ID,
+		"article_id":  articleRecord.ID,
+		"task_id":     taskRecord.ID,
+		"need_survey": needSurvey,
 	})
 }
