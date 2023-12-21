@@ -14,4 +14,5 @@ func BindingRoutes(app *fiber.App) {
 	app.Get("auth/callback", paths.AuthCallback)
 	app.Get("article/:articleId", paths.GetArticle)
 	app.Get("articles", paths.TakeImages)
+	app.Get("templates", paths.GetTemplates)
 }
