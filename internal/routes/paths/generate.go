@@ -132,16 +132,16 @@ func GenerateImage(c *fiber.Ctx) error {
 		c.Status(fiber.StatusInternalServerError)
 		return err
 	}
-	//err = bussinessLogic.PutImageRequestToQueue(
-	//	taskRecord.ID,
-	//	accessData.Sub,
-	//	prompt,
-	//	articleRecord.ID,
-	//)
-	//if err != nil {
-	//	c.Status(fiber.StatusInternalServerError)
-	//	return err
-	//}
+	err = bussinessLogic.PutImageRequestToQueue(
+		taskRecord.ID,
+		accessData.Sub,
+		prompt,
+		articleRecord.ID,
+	)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return err
+	}
 	needSurvey, err := bussinessLogic.CheckNeedJumpSurveyToUser(userSub)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
