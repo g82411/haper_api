@@ -9,11 +9,12 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-lambda-go/lambdacontext"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"hyper_api/internal/config"
+	"hyper_api/internal/middleware"
 	"hyper_api/internal/routes"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 )
@@ -65,6 +66,7 @@ func handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 	}
 	// 初始化 Fiber
 	app := fiber.New()
+	log.SetLevel(log.LevelInfo)
 
 	// 定义路由
 	setUpApp(app)
@@ -108,6 +110,7 @@ func setUpApp(app *fiber.App) {
 		AllowCredentials: true,
 		AllowMethods:     "GET,POST,HEAD,PUT,DELETE,PATCH",
 	}))
+	app.Use(middleware.LoadConfig)
 	routes.BindingRoutes(app)
 
 }
@@ -120,6 +123,7 @@ func main() {
 		// 作为独立的 HTTP 服务运行
 		// TODO: refresh middle ware
 		app := fiber.New()
+		log.SetLevel(log.LevelDebug)
 		app.Use(cors.New(cors.Config{
 			AllowOriginsFunc: func(origin string) bool { return true },
 			AllowHeaders:     "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent",

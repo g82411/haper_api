@@ -18,7 +18,6 @@ func TakeImages(c *fiber.Ctx) error {
 		}
 	}
 	db, err := models.NewDBClient()
-	err = db.AutoMigrate(&models.Article{})
 	//var article models.Article
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)

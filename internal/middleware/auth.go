@@ -1,10 +1,8 @@
 package middleware
 
 import (
-	"context"
-	awsConfig "github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
 	"hyper_api/internal/utils/aws"
 	"strings"
 )
@@ -28,16 +26,20 @@ func AuthMiddleware(c *fiber.Ctx) error {
 	if token == "" {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
 	}
-	cfg, err := awsConfig.LoadDefaultConfig(context.TODO())
+	client, err := aws.NewCognitoClient()
 	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
+		c.Status(fiber.StatusInternalServerError)
+		log.Errorf("Error loading AWS config: %v", err)
 	}
-	svc := dynamodb.NewFromConfig(cfg)
-	accessData, err := aws.GetUserInfoByAccessToken(svc, token)
+	userInfo, err := client.GetUserAttributeByAccessToken(token)
 	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
+		c.Status(fiber.StatusUnauthorized)
+		log.Errorf("Error get user data: %v", err)
+		return c.JSON(fiber.Map{
+			"message": "Invalid token",
+		})
 	}
-	c.Locals("accessData", accessData)
-	c.Locals("accessToken", token)
+	// Create the Cognito Identity Provider Client
+	c.Locals("userInfo", userInfo)
 	return c.Next()
 }

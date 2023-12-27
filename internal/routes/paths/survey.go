@@ -2,7 +2,7 @@ package paths
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"hyper_api/internal/utils"
+	"hyper_api/internal/dto"
 	"hyper_api/internal/utils/aws"
 )
 
@@ -15,7 +15,8 @@ type SurveyPayload struct {
 }
 
 func Survey(c *fiber.Ctx) error {
-	userSub := c.Locals("accessData").(utils.Claims).Sub
+	userInfo := c.Locals("userInfo").(*dto.UserInfo)
+	cognitoPoolId := c.Locals("config:CognitoUserPoolId").(string)
 	var body SurveyPayload
 	if err := c.BodyParser(&body); err != nil {
 		return err
@@ -26,23 +27,14 @@ func Survey(c *fiber.Ctx) error {
 		c.Status(fiber.StatusInternalServerError)
 		return err
 	}
-	err = aws.PutSurveyResultToDB(svc, userSub, body.Reason)
+	err = aws.PutSurveyResultToDB(svc, userInfo.Sub, body.Reason)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return err
 	}
-	idToken, _, err := aws.GetTokenFromDB(svc, userSub)
-	if err != nil {
-		c.Status(fiber.StatusInternalServerError)
-		return err
-	}
-	userInfo, err := utils.ExtractUserInfoFromToken(idToken)
-	if err != nil {
-		c.Status(fiber.StatusInternalServerError)
-		return err
-	}
-	err = aws.UpdateUserInfo(
-		userInfo.CogUsername,
+	client, err := aws.NewAdminCognitoClient(cognitoPoolId)
+	err = client.UpdateUserInfo(
+		userInfo.InternalUserName,
 		body.Name,
 		body.Age,
 		body.Career,

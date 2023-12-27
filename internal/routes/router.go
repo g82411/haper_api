@@ -11,7 +11,6 @@ func BindingRoutes(app *fiber.App) {
 	app.Post("generate", middleware.AuthMiddleware, paths.GenerateImage)
 	app.Post("survey", middleware.AuthMiddleware, paths.Survey)
 
-	app.Get("auth/callback", paths.AuthCallback)
 	app.Get("article/:articleId", paths.GetArticle)
 	app.Get("articles", paths.TakeImages)
 	app.Get("templates", paths.GetTemplates)

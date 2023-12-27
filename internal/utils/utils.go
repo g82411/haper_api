@@ -5,7 +5,6 @@ import (
 	"math/rand"
 	"net/http"
 	"strconv"
-	"sync"
 	"time"
 )
 
@@ -44,21 +43,6 @@ func DownloadImage(url string) DownloadResult {
 		Image:   image,
 	}
 	return ret
-}
-
-func DownloadImages(urls []string) ([]DownloadResult, error) {
-	n := len(urls)
-	ret := make([]DownloadResult, n)
-	var wg sync.WaitGroup
-	for idx, url := range urls {
-		wg.Add(1)
-		go func(url string, i int) {
-			defer wg.Done()
-			ret[i] = DownloadImage(url)
-		}(url, idx)
-	}
-	wg.Wait()
-	return ret, nil
 }
 
 func GenerateShortKey() string {
