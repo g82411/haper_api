@@ -104,6 +104,10 @@ func handler(ctx context.Context, req events.APIGatewayProxyRequest) (events.API
 }
 
 func setUpApp(app *fiber.App) {
+	app.Use(func(c *fiber.Ctx) error {
+		c.Locals("env:isLocal", lambdacontext.FunctionName == "")
+		return c.Next()
+	})
 	app.Use(cors.New(cors.Config{
 		AllowOriginsFunc: func(origin string) bool { return true },
 		AllowHeaders:     "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent",
@@ -121,7 +125,6 @@ func main() {
 		lambda.Start(handler)
 	} else {
 		// 作为独立的 HTTP 服务运行
-		// TODO: refresh middle ware
 		app := fiber.New()
 		log.SetLevel(log.LevelDebug)
 		app.Use(cors.New(cors.Config{
