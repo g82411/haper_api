@@ -10,6 +10,7 @@ func BindingRoutes(app *fiber.App) {
 	app.Get("userInfo", middleware.AuthMiddleware, paths.GetUserInfo)
 	app.Post("generate", middleware.AuthMiddleware, paths.GenerateImage)
 	app.Post("survey", middleware.AuthMiddleware, paths.Survey)
+	app.Get("user/article", middleware.AuthMiddleware, paths.QueryArticleByUser)
 
 	app.Get("article/:articleId", paths.GetArticle)
 	app.Get("articles", paths.TakeImages)

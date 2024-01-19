@@ -1,6 +1,7 @@
 package paths
 
 import (
+	context2 "context"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"hyper_api/internal/bussinessLogic"
@@ -10,7 +11,8 @@ import (
 )
 
 type GenerateRequest struct {
-	Prompt string `json:"prompt"`
+	Prompt string   `json:"prompt"`
+	Tags   []string `json:"tags"`
 }
 
 func GenerateImage(c *fiber.Ctx) error {
@@ -22,6 +24,7 @@ func GenerateImage(c *fiber.Ctx) error {
 		return err
 	}
 	dbClient, err := models.NewDBClient()
+	tags := body.Tags
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return err
@@ -38,8 +41,13 @@ func GenerateImage(c *fiber.Ctx) error {
 		})
 	}
 	prompt := fmt.Sprintf(PromptTemplate, body.Prompt)
-	fmt.Printf("Prompt: %v\n", prompt)
-
+	context := context2.Background()
+	context = models.NewDBClientWithContext(context)
+	tagRecords, err := bussinessLogic.FindOrCreateTags(context, tags)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError)
+		return err
+	}
 	articleRecord := models.Article{
 		ID:         utils.GenerateShortKey(),
 		Tool:       "卡通插圖易讀產生",
@@ -48,6 +56,7 @@ func GenerateImage(c *fiber.Ctx) error {
 		AuthorId:   userInfo.Sub,
 		Valid:      false,
 		AuthorName: userInfo.Name,
+		Tags:       tagRecords,
 	}
 	taskRecord := models.Task{
 		ID:       utils.GenerateShortKey(),

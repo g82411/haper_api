@@ -15,7 +15,7 @@ func GetArticle(c *fiber.Ctx) error {
 	}
 	articleId := c.Params("articleId")
 	var article models.Article
-	tx := db.Debug().Table("articles").Where("id = ?", articleId).Find(&article)
+	tx := db.Preload("Tags").Table("articles").Where("id = ?", articleId).Find(&article)
 	if tx.Error != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return tx.Error
