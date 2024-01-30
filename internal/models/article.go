@@ -31,7 +31,7 @@ func (article Article) Deserialize() map[string]types.AttributeValue {
 	}
 	return map[string]types.AttributeValue{
 		"id":          &types.AttributeValueMemberS{Value: article.ID},
-		"url":         &types.AttributeValueMemberS{Value: article.Url},
+		"image_url":   &types.AttributeValueMemberS{Value: article.Url},
 		"keyword":     &types.AttributeValueMemberS{Value: article.Keyword},
 		"author_id":   &types.AttributeValueMemberS{Value: article.AuthorId},
 		"author_name": &types.AttributeValueMemberS{Value: article.AuthorName},
@@ -44,7 +44,7 @@ func (article Article) Deserialize() map[string]types.AttributeValue {
 func (_ Article) Serialize(av map[string]types.AttributeValue) interface{} {
 	var article Article
 	article.ID = av["id"].(*types.AttributeValueMemberS).Value
-	article.Url = av["url"].(*types.AttributeValueMemberS).Value
+	article.Url = av["image_url"].(*types.AttributeValueMemberS).Value
 	article.Keyword = av["keyword"].(*types.AttributeValueMemberS).Value
 	article.AuthorId = av["author_id"].(*types.AttributeValueMemberS).Value
 	article.AuthorName = av["author_name"].(*types.AttributeValueMemberS).Value

@@ -15,6 +15,14 @@ type InputQuery struct {
 	Limit                  int32
 }
 
+type UpdateQuery struct {
+	ExpressionAttribute *map[string]types.AttributeValue
+	UpdateExpression    *string
+	Key                 *map[string]types.AttributeValue
+	Limit               int32
+	ReturnValues        types.ReturnValue
+}
+
 type SerializeAble interface {
 	Serialize(av map[string]types.AttributeValue) interface{}
 	Deserialize() map[string]types.AttributeValue
@@ -100,4 +108,29 @@ func Query(ctx context.Context, tableName string, query *InputQuery) ([]map[stri
 		return nil, err
 	}
 	return output.Items, nil
+}
+
+func Update(ctx context.Context, tableName string, query *UpdateQuery) error {
+	svc := ctx.Value("dynamodb").(*dynamodb.Client)
+	input := &dynamodb.UpdateItemInput{
+		TableName: aws.String(tableName),
+	}
+	if query.ExpressionAttribute != nil {
+		input.ExpressionAttributeValues = *(query.ExpressionAttribute)
+	}
+	if query.UpdateExpression != nil {
+		input.UpdateExpression = aws.String(*(query.UpdateExpression))
+	}
+	if query.Key != nil {
+		input.Key = *(query.Key)
+	}
+	if query.ReturnValues != "" {
+		input.ReturnValues = query.ReturnValues
+	}
+
+	_, err := svc.UpdateItem(context.Background(), input)
+	if err != nil {
+		return err
+	}
+	return nil
 }

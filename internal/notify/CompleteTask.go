@@ -28,7 +28,7 @@ func CompleteTask(task dto.GenerateImageTask) error {
 	}
 	defer connection.Close()
 	message := CompleteTaskMessage{
-		TaskID:      task.TaskID,
+		TaskID:      task.ID,
 		RecipientID: task.AuthorId,
 		Type:        "imageGenerate",
 		Status:      "success",
