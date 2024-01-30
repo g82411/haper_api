@@ -9,16 +9,16 @@ import (
 )
 
 func markTaskAsDone(db *gorm.DB, taskId string) error {
-	var task models.Task
-	tx := db.Debug().Table("tasks").Where("id = ?", taskId).Find(&task)
-	if tx.Error != nil {
-		return tx.Error
-	}
-	if task.ID == "" {
-		return nil
-	}
-	task.Status = 1
-	tx = db.Debug().Table("tasks").Where("id = ?", taskId).Save(&task)
+	//var task models.Task
+	//tx := db.Debug().Table("tasks").Where("id = ?", taskId).Find(&task)
+	//if tx.Error != nil {
+	//	return tx.Error
+	//}
+	//if task.ID == "" {
+	//	return nil
+	//}
+	//task.Status = 1
+	//tx = db.Debug().Table("tasks").Where("id = ?", taskId).Save(&task)
 	return nil
 }
 

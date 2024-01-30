@@ -1,16 +1,53 @@
 package models
 
+import (
+	"context"
+	"fmt"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"hyper_api/internal/utils/aws/dynamodb"
+)
+
 type Article struct {
-	ID         string `gorm:"primaryKey"`
+	dynamodb.SerializeAble
+	ID         string
 	Url        string
-	Tool       string
-	Style      string
 	Keyword    string
 	AuthorId   string
 	AuthorName string
-	Valid      bool `gorm:"default:true"`
-	DeletedAt  int64
-	CreatedAt  int64 `gorm:"autoCreateTime"`
-	UpdatedAt  int64 `gorm:"autoUpdateTime:milli"`
-	Tags       []Tag `gorm:"many2many:article_tags;"`
+	Date       string
+	Valid      bool
+}
+
+func (article Article) TableName(ctx context.Context) string {
+	stage := ctx.Value("stage").(string)
+	return fmt.Sprintf("%s_articles", stage)
+}
+
+func (article Article) Deserialize() map[string]types.AttributeValue {
+	valid := "false"
+	if article.Valid {
+		valid = "true"
+	}
+	return map[string]types.AttributeValue{
+		"id":          &types.AttributeValueMemberS{Value: article.ID},
+		"url":         &types.AttributeValueMemberS{Value: article.Url},
+		"keyword":     &types.AttributeValueMemberS{Value: article.Keyword},
+		"author_id":   &types.AttributeValueMemberS{Value: article.AuthorId},
+		"author_name": &types.AttributeValueMemberS{Value: article.AuthorName},
+		"date":        &types.AttributeValueMemberS{Value: article.Date},
+		"valid":       &types.AttributeValueMemberS{Value: valid},
+		"date_id":     &types.AttributeValueMemberS{Value: article.Date + "_" + article.ID},
+	}
+}
+
+func (_ Article) Serialize(av map[string]types.AttributeValue) interface{} {
+	var article Article
+	article.ID = av["id"].(*types.AttributeValueMemberS).Value
+	article.Url = av["url"].(*types.AttributeValueMemberS).Value
+	article.Keyword = av["keyword"].(*types.AttributeValueMemberS).Value
+	article.AuthorId = av["author_id"].(*types.AttributeValueMemberS).Value
+	article.AuthorName = av["author_name"].(*types.AttributeValueMemberS).Value
+	article.Date = av["date"].(*types.AttributeValueMemberS).Value
+	article.Valid = av["valid"].(*types.AttributeValueMemberBOOL).Value
+	return article
 }

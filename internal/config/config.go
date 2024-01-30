@@ -5,7 +5,6 @@ import "os"
 type Config struct {
 	AWSRegion string
 	// SQS
-	CognitoClientId string
 	RedirectURL     string
 	CognitoDomain   string
 	SQSQueueName    string
@@ -29,6 +28,7 @@ type Config struct {
 	WebSocketPath string
 	WebSocketURL  string
 	SQSQueueUrl   string
+	Env           string
 }
 
 func GetConfig() *Config {
@@ -38,8 +38,6 @@ func GetConfig() *Config {
 		OpenAIKey:        os.Getenv("OPENAI_KEY"),
 		SQSQueueName:     os.Getenv("SQS_QUEUE_NAME"),
 		SQSQueueURL:      os.Getenv("SQS_QUEUE_URL"),
-		CognitoDomain:    os.Getenv("COGNITO_DOMAIN"),
-		CognitoClientId:  os.Getenv("COGNITO_CLIENT_ID"),
 		CognitoUserPool:  os.Getenv("COGNITO_USER_POOL"),
 		TokenTable:       os.Getenv("TOKEN_TABLE"),
 		SurveyTable:      os.Getenv("SURVEY_TABLE"),
@@ -56,5 +54,6 @@ func GetConfig() *Config {
 		WebSocketPath:    os.Getenv("WEB_SOCKET_PATH"),
 		WebSocketURL:     os.Getenv("WEB_SOCKET_URL"),
 		SQSQueueUrl:      os.Getenv("SQS_QUEUE_URL"),
+		Env:              os.Getenv("ENV"),
 	}
 }

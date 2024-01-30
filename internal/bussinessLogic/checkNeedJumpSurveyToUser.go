@@ -1,27 +1,39 @@
 package bussinessLogic
 
-import "hyper_api/internal/models"
+import (
+	"context"
+	"fmt"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"hyper_api/internal/models"
+	"hyper_api/internal/utils/aws/dynamodb"
+)
 
-func CheckNeedJumpSurveyToUser(sub string) (bool, error) {
-	ArticleCountThatNeedSurvey := [3]int{5, 20, 40}
+func CheckNeedJumpSurveyToUser(ctx context.Context, authorId string) (bool, error) {
+	ArticleCountThatNeedSurvey := map[int]bool{
+		5:  true,
+		20: true,
+		40: true,
+	}
+	const MaxQueryLimit = int32(41)
+	tableName := models.Article{}.TableName(ctx)
 
-	dbClient, err := models.NewDBClient()
+	keyConditionExpression := "author_id = :author_id"
+	expressionAttrVals := map[string]types.AttributeValue{
+		":author_id": &types.AttributeValueMemberS{Value: authorId},
+		":valid":     &types.AttributeValueMemberS{Value: "true"},
+	}
+	filter := "valid = :valid"
+	query := dynamodb.InputQuery{
+		KeyConditionExpression: &keyConditionExpression,
+		ExpressionAttribute:    &expressionAttrVals,
+		FilterExpression:       &filter,
+		Limit:                  MaxQueryLimit,
+	}
+	items, err := dynamodb.Query(ctx, tableName, &query)
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("error while query article: %s", err.Error())
 	}
-	var count int64
-	tx := dbClient.Model(&models.Article{})
-	tx.Where("author_id = ?", sub)
-	tx.Where("valid = ?", true)
-	tx.Limit(ArticleCountThatNeedSurvey[2] + 1)
-	tx.Count(&count)
+	n := len(items)
 
-	flag := false
-	for i := 0; i < 3; i++ {
-		if count == int64(ArticleCountThatNeedSurvey[i]) {
-			flag = true
-			break
-		}
-	}
-	return flag, nil
+	return ArticleCountThatNeedSurvey[n], nil
 }
