@@ -16,6 +16,7 @@ type Article struct {
 	AuthorName string
 	Date       string
 	Valid      bool
+	DateId     string
 }
 
 func (article Article) TableName(ctx context.Context) string {
@@ -36,7 +37,7 @@ func (article Article) Deserialize() map[string]types.AttributeValue {
 		"author_name": &types.AttributeValueMemberS{Value: article.AuthorName},
 		"date":        &types.AttributeValueMemberS{Value: article.Date},
 		"valid":       &types.AttributeValueMemberS{Value: valid},
-		"date_id":     &types.AttributeValueMemberS{Value: article.Date + "_" + article.ID},
+		"date_id":     &types.AttributeValueMemberS{Value: article.DateId},
 	}
 }
 
@@ -49,5 +50,6 @@ func (_ Article) Serialize(av map[string]types.AttributeValue) interface{} {
 	article.AuthorName = av["author_name"].(*types.AttributeValueMemberS).Value
 	article.Date = av["date"].(*types.AttributeValueMemberS).Value
 	article.Valid = av["valid"].(*types.AttributeValueMemberBOOL).Value
+	article.DateId = av["date_id"].(*types.AttributeValueMemberS).Value
 	return article
 }

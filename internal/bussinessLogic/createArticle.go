@@ -19,6 +19,7 @@ func CreateArticle(ctx context.Context, authorId, authorName, keyword string) (*
 		Valid:      false,
 		ID:         id,
 		Date:       today,
+		DateId:     today + "_" + id,
 	}
 
 	err := dynamodb.Insert(ctx, article)
