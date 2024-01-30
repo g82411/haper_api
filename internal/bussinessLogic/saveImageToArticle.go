@@ -9,13 +9,14 @@ import (
 )
 
 func SaveImageToArticle(dynamoCtx context.Context, task dto.GenerateImageTask, imageUrl string) error {
-	updateQuery := "set image_url = :imageUrl"
+	updateQuery := "set image_url = :imageUrl, valid = :valid"
 	key := map[string]types.AttributeValue{
 		"date_id":   &types.AttributeValueMemberS{Value: task.ArticleDateId},
 		"author_id": &types.AttributeValueMemberS{Value: task.AuthorId},
 	}
 	expressionAttribute := map[string]types.AttributeValue{
 		":imageUrl": &types.AttributeValueMemberS{Value: imageUrl},
+		":valid":    &types.AttributeValueMemberS{Value: "true"},
 	}
 	var article models.Article
 	tableName := article.TableName(dynamoCtx)
