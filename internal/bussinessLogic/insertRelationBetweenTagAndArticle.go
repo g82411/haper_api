@@ -27,6 +27,9 @@ func InsertRelationBetweenTagAndArticle(ctx context.Context, article *models.Art
 			TagName:   tag,
 		}
 	}
+	if len(index) == 0 {
+		return nil
+	}
 	err := dynamodb.BulkInsert(ctx, index)
 	if err != nil {
 		return fmt.Errorf("insert relation between tag and article: %v", err)
