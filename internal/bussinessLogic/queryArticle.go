@@ -7,7 +7,7 @@ import (
 	"hyper_api/internal/utils/aws/dynamodb"
 )
 
-const PerPage = 1
+const PerPage = 30
 
 type QueryOption struct {
 	AuthorId     string
