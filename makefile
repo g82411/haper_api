@@ -1,9 +1,9 @@
 IMAGE_TAG?=$(shell echo `git rev-parse --short HEAD`)
 DOCKER_PW=$(shell echo `aws ecr get-login-password --region ap-northeast-1`)
-ECR_REPO=843456404290.dkr.ecr.ap-northeast-1.amazonaws.com
-IMAGE_NAME=haper_api_image
-SOCKET_IMAGE_NAME=haper_socket_image
-WORKER_IMAGE_NAME=haper_worker_image
+ECR_REPO=128945220432.dkr.ecr.ap-northeast-1.amazonaws.com
+IMAGE_NAME=passpark-api
+SOCKET_IMAGE_NAME=passpark-websocket
+WORKER_IMAGE_NAME=passpark-worker
 
 .PHONY: build_api migrate_new migrate_up build_socket build_worker
 

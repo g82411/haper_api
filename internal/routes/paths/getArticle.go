@@ -1,30 +1,30 @@
 package paths
 
 import (
+	context2 "context"
 	"github.com/gofiber/fiber/v2"
-	"hyper_api/internal/models"
+	"hyper_api/internal/bussinessLogic"
+	"hyper_api/internal/utils/aws/dynamodb"
 )
 
 func GetArticle(c *fiber.Ctx) error {
-	db, err := models.NewDBClient()
-	err = db.AutoMigrate(&models.Article{})
-	//var article models.Article
+	articleId := c.Params("articleId")
+	ctx := context2.Background()
+	dynamoCtx, err := dynamodb.WithDynamoDBConnection(ctx)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return err
 	}
-	articleId := c.Params("articleId")
-	var article models.Article
-	tx := db.Preload("Tags").Table("articles").Where("id = ?", articleId).Find(&article)
-	if tx.Error != nil {
+	stageCtx := context2.WithValue(dynamoCtx, "stage", "prod")
+	article, err := bussinessLogic.GetArticle(stageCtx, articleId)
+	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
-		return tx.Error
+		return err
 	}
-	if article.ID == "" {
-		res := make(map[string]interface{})
-		res["message"] = "Article not found"
-		c.Status(fiber.StatusNotFound)
-		return c.JSON(res)
+	if article == nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"message": "Article not found",
+		})
 	}
 	return c.JSON(article)
 }

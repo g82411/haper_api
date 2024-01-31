@@ -48,8 +48,7 @@ func (_ Article) Serialize(av map[string]types.AttributeValue) interface{} {
 	article.Keyword = av["keyword"].(*types.AttributeValueMemberS).Value
 	article.AuthorId = av["author_id"].(*types.AttributeValueMemberS).Value
 	article.AuthorName = av["author_name"].(*types.AttributeValueMemberS).Value
-	article.Date = av["date"].(*types.AttributeValueMemberS).Value
-	article.Valid = av["valid"].(*types.AttributeValueMemberBOOL).Value
+	article.Valid = av["valid"].(*types.AttributeValueMemberS).Value == "true"
 	article.DateId = av["date_id"].(*types.AttributeValueMemberS).Value
 	return article
 }

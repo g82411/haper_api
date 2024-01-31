@@ -1,31 +1,23 @@
 package paths
 
 import (
-	"context"
+	context2 "context"
 	"github.com/gofiber/fiber/v2"
-	"gorm.io/gorm"
 	"hyper_api/internal/bussinessLogic"
-	"hyper_api/internal/models"
-	"strconv"
+	"hyper_api/internal/utils/aws/dynamodb"
 )
 
-const PerPage = 20
-
 func TakeImages(c *fiber.Ctx) error {
-	page := c.Query("page")
-	pageInt := 1
-	if page != "" {
-		pageParsed, err := strconv.Atoi(page)
-		if err == nil {
-			pageInt = pageParsed
-		}
-	}
-	ctx := context.Context(c.Context())
-	ctx = models.NewDBClientWithContext(ctx)
-	result, err := bussinessLogic.QueryArticle(ctx, pageInt, PerPage, func(tx *gorm.DB) *gorm.DB {
-		return tx
+	lastAuthorId := c.Query("last_author_id")
+	lastDateId := c.Query("last_date_id")
+
+	ctx := context2.Background()
+	dynamoCtx, err := dynamodb.WithDynamoDBConnection(ctx)
+	stageCtx := context2.WithValue(dynamoCtx, "stage", "prod")
+	result, err := bussinessLogic.QueryArticle(stageCtx, &bussinessLogic.QueryOption{
+		LastAuthorId: lastAuthorId,
+		LastDateId:   lastDateId,
 	})
-	//var article models.Article
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return err

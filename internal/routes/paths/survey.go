@@ -2,8 +2,6 @@ package paths
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"hyper_api/internal/dto"
-	"hyper_api/internal/utils/aws"
 )
 
 type SurveyPayload struct {
@@ -15,34 +13,34 @@ type SurveyPayload struct {
 }
 
 func Survey(c *fiber.Ctx) error {
-	userInfo := c.Locals("userInfo").(*dto.UserInfo)
-	cognitoPoolId := c.Locals("config:CognitoUserPoolId").(string)
+	//userInfo := c.Locals("userInfo").(*dto.UserInfo)
+	//cognitoPoolId := c.Locals("config:CognitoUserPoolId").(string)
 	var body SurveyPayload
 	if err := c.BodyParser(&body); err != nil {
 		return err
 	}
 
-	svc, err := aws.NewDynamoDBClient()
-	if err != nil {
-		c.Status(fiber.StatusInternalServerError)
-		return err
-	}
-	err = aws.PutSurveyResultToDB(svc, userInfo.Sub, body.Reason)
-	if err != nil {
-		c.Status(fiber.StatusInternalServerError)
-		return err
-	}
-	client, err := aws.NewAdminCognitoClient(cognitoPoolId)
-	err = client.UpdateUserInfo(
-		userInfo.InternalUserName,
-		body.Name,
-		body.Age,
-		body.Career,
-		body.Gender,
-	)
-	if err != nil {
-		c.Status(fiber.StatusInternalServerError)
-		return err
-	}
+	//svc, err := aws.NewDynamoDBClient()
+	//if err != nil {
+	//	c.Status(fiber.StatusInternalServerError)
+	//	return err
+	//}
+	//err = aws.PutSurveyResultToDB(svc, userInfo.Sub, body.Reason)
+	//if err != nil {
+	//	c.Status(fiber.StatusInternalServerError)
+	//	return err
+	//}
+	//client, err := aws.NewAdminCognitoClient(cognitoPoolId)
+	//err = client.UpdateUserInfo(
+	//	userInfo.InternalUserName,
+	//	body.Name,
+	//	body.Age,
+	//	body.Career,
+	//	body.Gender,
+	//)
+	//if err != nil {
+	//	c.Status(fiber.StatusInternalServerError)
+	//	return err
+	//}
 	return c.SendStatus(fiber.StatusCreated)
 }

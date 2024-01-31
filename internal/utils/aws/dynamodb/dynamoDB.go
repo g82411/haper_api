@@ -12,6 +12,9 @@ type InputQuery struct {
 	ExpressionAttribute    *map[string]types.AttributeValue
 	FilterExpression       *string
 	KeyConditionExpression *string
+	ExclusiveStartKey      *map[string]types.AttributeValue
+	IndexName              string
+	ScanIndexForward       bool
 	Limit                  int32
 }
 
@@ -27,7 +30,6 @@ type SerializeAble interface {
 	Serialize(av map[string]types.AttributeValue) interface{}
 	Deserialize() map[string]types.AttributeValue
 	TableName(ctx context.Context) string
-	//Deserialize() interface{}
 }
 
 func WithDynamoDBConnection(ctx context.Context) (context.Context, error) {
@@ -86,7 +88,8 @@ func BulkInsert(ctx context.Context, items []SerializeAble) error {
 func Query(ctx context.Context, tableName string, query *InputQuery) ([]map[string]types.AttributeValue, error) {
 	svc := ctx.Value("dynamodb").(*dynamodb.Client)
 	input := &dynamodb.QueryInput{
-		TableName: aws.String(tableName),
+		TableName:        aws.String(tableName),
+		ScanIndexForward: aws.Bool(query.ScanIndexForward),
 	}
 	if query.ExpressionAttribute != nil {
 		input.ExpressionAttributeValues = *(query.ExpressionAttribute)
@@ -102,7 +105,12 @@ func Query(ctx context.Context, tableName string, query *InputQuery) ([]map[stri
 	} else {
 		input.Limit = aws.Int32(100)
 	}
-
+	if query.IndexName != "" {
+		input.IndexName = aws.String(query.IndexName)
+	}
+	if query.ExclusiveStartKey != nil {
+		input.ExclusiveStartKey = *(query.ExclusiveStartKey)
+	}
 	output, err := svc.Query(context.Background(), input)
 	if err != nil {
 		return nil, err
