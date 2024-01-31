@@ -15,6 +15,9 @@ func InsertRelationBetweenTagAndArticle(ctx context.Context, article *models.Art
 	index := make([]dynamodb.SerializeAble, n)
 	invertedIndex := make([]dynamodb.SerializeAble, n)
 	for i, tag := range tags {
+		if tag == "" {
+			continue
+		}
 		index[i] = models.ArticleTag{
 			ArticleID: article.ID,
 			TagName:   tag,
