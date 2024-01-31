@@ -11,21 +11,20 @@ func InsertRelationBetweenTagAndArticle(ctx context.Context, article *models.Art
 	if len(tags) == 0 {
 		return nil
 	}
-	n := len(tags)
-	index := make([]dynamodb.SerializeAble, n)
-	invertedIndex := make([]dynamodb.SerializeAble, n)
-	for i, tag := range tags {
+	index := make([]dynamodb.SerializeAble, 0)
+	invertedIndex := make([]dynamodb.SerializeAble, 0)
+	for _, tag := range tags {
 		if tag == "" {
 			continue
 		}
-		index[i] = models.ArticleTag{
+		index = append(index, models.ArticleTag{
 			ArticleID: article.ID,
 			TagName:   tag,
-		}
-		invertedIndex[i] = models.TagArticle{
+		})
+		invertedIndex = append(invertedIndex, models.TagArticle{
 			ArticleID: article.ID,
 			TagName:   tag,
-		}
+		})
 	}
 	if len(index) == 0 {
 		return nil
