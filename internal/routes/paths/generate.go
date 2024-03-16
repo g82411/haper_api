@@ -39,7 +39,7 @@ func GenerateImage(c *fiber.Ctx) error {
 			"message": "今日額度已用完",
 		})
 	}
-	article, err := bussinessLogic.CreateArticle(stageCtx, userInfo.Sub, userInfo.Name, body.Prompt)
+	article, err := bussinessLogic.CreateArticle(stageCtx, userInfo, body.Prompt, body.Tags)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return err

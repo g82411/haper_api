@@ -9,14 +9,16 @@ import (
 
 type Article struct {
 	dynamodb.SerializeAble
-	ID         string
-	Url        string
-	Keyword    string
-	AuthorId   string
-	AuthorName string
-	Date       string
-	Valid      bool
-	DateId     string
+	ID          string
+	Url         string
+	Keyword     string
+	AuthorId    string
+	AuthorName  string
+	Date        string
+	Valid       bool
+	DateId      string
+	AuthorImage string
+	Tags        string
 }
 
 func (article Article) TableName(ctx context.Context) string {
@@ -30,14 +32,16 @@ func (article Article) Deserialize() map[string]types.AttributeValue {
 		valid = "true"
 	}
 	return map[string]types.AttributeValue{
-		"id":          &types.AttributeValueMemberS{Value: article.ID},
-		"image_url":   &types.AttributeValueMemberS{Value: article.Url},
-		"keyword":     &types.AttributeValueMemberS{Value: article.Keyword},
-		"author_id":   &types.AttributeValueMemberS{Value: article.AuthorId},
-		"author_name": &types.AttributeValueMemberS{Value: article.AuthorName},
-		"date":        &types.AttributeValueMemberS{Value: article.Date},
-		"valid":       &types.AttributeValueMemberS{Value: valid},
-		"date_id":     &types.AttributeValueMemberS{Value: article.DateId},
+		"id":           &types.AttributeValueMemberS{Value: article.ID},
+		"image_url":    &types.AttributeValueMemberS{Value: article.Url},
+		"keyword":      &types.AttributeValueMemberS{Value: article.Keyword},
+		"author_id":    &types.AttributeValueMemberS{Value: article.AuthorId},
+		"author_name":  &types.AttributeValueMemberS{Value: article.AuthorName},
+		"author_image": &types.AttributeValueMemberS{Value: article.AuthorImage},
+		"tags":         &types.AttributeValueMemberS{Value: article.Tags},
+		"date":         &types.AttributeValueMemberS{Value: article.Date},
+		"valid":        &types.AttributeValueMemberS{Value: valid},
+		"date_id":      &types.AttributeValueMemberS{Value: article.DateId},
 	}
 }
 

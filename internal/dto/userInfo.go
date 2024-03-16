@@ -6,4 +6,5 @@ type UserInfo struct {
 	Name             string `json:"name"`
 	IsDoneSurvey     string `json:"custom:isDoneSurvey"`
 	InternalUserName string `json:"cognito:username"`
+	Picture          string `json:"picture"`
 }

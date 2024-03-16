@@ -54,7 +54,9 @@ func (client *CognitoClient) GetUserAttributeByAccessToken(accessToken string) (
 		if *v.Name == "custom:isDoneSurvey" {
 			userInfo.IsDoneSurvey = *v.Value
 		}
-
+		if *v.Name == "picture" {
+			userInfo.Picture = *v.Value
+		}
 	}
 
 	return &userInfo, nil

@@ -57,16 +57,28 @@ func QueryArticle(ctx context.Context, opt *QueryOption) ([]map[string]interface
 		id, _ := v["id"].(*types.AttributeValueMemberS)
 		authorId, _ := v["author_id"].(*types.AttributeValueMemberS)
 		dateId, _ := v["date_id"].(*types.AttributeValueMemberS)
+		authorImage := ""
+		if v["author_image"] != nil {
+			field, _ := v["author_image"].(*types.AttributeValueMemberS)
+			authorImage = field.Value
+		}
+		tags := ""
+		if v["tags"] != nil {
+			field, _ := v["tags"].(*types.AttributeValueMemberS)
+			tags = field.Value
+		}
 		authorName, _ := v["author_name"].(*types.AttributeValueMemberS)
 		keyword, _ := v["keyword"].(*types.AttributeValueMemberS)
 		imageUrl, _ := v["image_url"].(*types.AttributeValueMemberS)
 		result = append(result, map[string]interface{}{
-			"id":         id.Value,
-			"authorId":   authorId.Value,
-			"dateId":     dateId.Value,
-			"authorName": authorName.Value,
-			"keyword":    keyword.Value,
-			"imageUrl":   imageUrl.Value,
+			"id":          id.Value,
+			"authorId":    authorId.Value,
+			"dateId":      dateId.Value,
+			"authorImage": authorImage,
+			"authorName":  authorName.Value,
+			"tags":        tags,
+			"keyword":     keyword.Value,
+			"imageUrl":    imageUrl.Value,
 		})
 	}
 	return result, nil
