@@ -52,8 +52,16 @@ func (article Article) Deserialize() map[string]types.AttributeValue {
 func (_ Article) Serialize(av map[string]types.AttributeValue) interface{} {
 	var article Article
 	article.ID = av["id"].(*types.AttributeValueMemberS).Value
-	article.Region = av["region"].(*types.AttributeValueMemberS).Value
-	article.Age = av["age"].(*types.AttributeValueMemberS).Value
+	region := ""
+	age := ""
+	if av["region"] != nil {
+		region = av["region"].(*types.AttributeValueMemberS).Value
+	}
+	if av["age"] != nil {
+		age = av["age"].(*types.AttributeValueMemberS).Value
+	}
+	article.Region = region
+	article.Age = age
 	article.Url = av["image_url"].(*types.AttributeValueMemberS).Value
 	article.Keyword = av["keyword"].(*types.AttributeValueMemberS).Value
 	article.AuthorId = av["author_id"].(*types.AttributeValueMemberS).Value
