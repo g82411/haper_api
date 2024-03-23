@@ -12,6 +12,8 @@ type Article struct {
 	ID          string
 	Url         string
 	Keyword     string
+	Region      string
+	Age         string
 	AuthorId    string
 	AuthorName  string
 	Date        string
@@ -38,6 +40,8 @@ func (article Article) Deserialize() map[string]types.AttributeValue {
 		"author_id":    &types.AttributeValueMemberS{Value: article.AuthorId},
 		"author_name":  &types.AttributeValueMemberS{Value: article.AuthorName},
 		"author_image": &types.AttributeValueMemberS{Value: article.AuthorImage},
+		"region":       &types.AttributeValueMemberS{Value: article.Region},
+		"age":          &types.AttributeValueMemberS{Value: article.Age},
 		"tags":         &types.AttributeValueMemberS{Value: article.Tags},
 		"date":         &types.AttributeValueMemberS{Value: article.Date},
 		"valid":        &types.AttributeValueMemberS{Value: valid},
@@ -48,6 +52,8 @@ func (article Article) Deserialize() map[string]types.AttributeValue {
 func (_ Article) Serialize(av map[string]types.AttributeValue) interface{} {
 	var article Article
 	article.ID = av["id"].(*types.AttributeValueMemberS).Value
+	article.Region = av["region"].(*types.AttributeValueMemberS).Value
+	article.Age = av["age"].(*types.AttributeValueMemberS).Value
 	article.Url = av["image_url"].(*types.AttributeValueMemberS).Value
 	article.Keyword = av["keyword"].(*types.AttributeValueMemberS).Value
 	article.AuthorId = av["author_id"].(*types.AttributeValueMemberS).Value

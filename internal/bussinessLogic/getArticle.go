@@ -11,7 +11,6 @@ func GetArticle(ctx context.Context, articleId string) (map[string]interface{}, 
 	articleKeyExpression := "id = :id"
 	articleFilterExpression := "valid = :valid"
 	var articleFake models.Article
-	var tags models.ArticleTag
 	articleQuery := dynamodb.InputQuery{
 		KeyConditionExpression: &articleKeyExpression,
 		ExpressionAttribute: &map[string]types.AttributeValue{
@@ -31,22 +30,10 @@ func GetArticle(ctx context.Context, articleId string) (map[string]interface{}, 
 	}
 	articleT := articleFake.Serialize(article[0]).(models.Article)
 
-	tagKeyExpression := "article_id = :id"
-	tagsQuery := dynamodb.InputQuery{
-		KeyConditionExpression: &tagKeyExpression,
-		ExpressionAttribute: &map[string]types.AttributeValue{
-			":id": &types.AttributeValueMemberS{Value: articleId},
-		},
-		IndexName: "ArticleIdIndex",
-	}
-	tagsResult, err := dynamodb.Query(ctx, tags.TableName(ctx), &tagsQuery)
 	if err != nil {
 		return nil, err
 	}
-	tag := make([]string, len(tagsResult))
-	for i, v := range tagsResult {
-		tag[i] = v["tag_name"].(*types.AttributeValueMemberS).Value
-	}
+
 	return map[string]interface{}{
 		"id":         articleT.ID,
 		"imageUrl":   articleT.Url,
@@ -55,6 +42,7 @@ func GetArticle(ctx context.Context, articleId string) (map[string]interface{}, 
 		"authorName": articleT.AuthorName,
 		"dateId":     articleT.DateId,
 		"date":       articleT.Date,
-		"tags":       tag,
+		"tags":       articleT.Age,
+		"region":     articleT.Region,
 	}, nil
 }

@@ -11,6 +11,8 @@ import (
 type GenerateRequest struct {
 	Prompt string   `json:"prompt"`
 	Tags   []string `json:"tags"`
+	Age    string   `json:"age"`
+	Region string   `json:"region"`
 }
 
 func GenerateImage(c *fiber.Ctx) error {
@@ -39,7 +41,7 @@ func GenerateImage(c *fiber.Ctx) error {
 			"message": "今日額度已用完",
 		})
 	}
-	article, err := bussinessLogic.CreateArticle(stageCtx, userInfo, body.Prompt, body.Tags)
+	article, err := bussinessLogic.CreateArticle(stageCtx, userInfo, body.Prompt, body.Age, body.Region)
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return err

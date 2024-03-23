@@ -10,7 +10,7 @@ import (
 	"hyper_api/internal/utils/resolver/date"
 )
 
-func CreateArticle(ctx context.Context, userInfo *dto.UserInfo, keyword string, tags []string) (*models.Article, error) {
+func CreateArticle(ctx context.Context, userInfo *dto.UserInfo, keyword string, age string, region string) (*models.Article, error) {
 	id := utils.GenerateShortKey()
 	today := date.GetNowDateString()
 	article := models.Article{
@@ -22,9 +22,8 @@ func CreateArticle(ctx context.Context, userInfo *dto.UserInfo, keyword string, 
 		Date:        today,
 		DateId:      today + "_" + id,
 		AuthorImage: userInfo.Picture,
-	}
-	if len(tags) > 0 {
-		article.Tags = tags[0]
+		Age:         age,
+		Region:      region,
 	}
 	err := dynamodb.Insert(ctx, article)
 	if err != nil {
