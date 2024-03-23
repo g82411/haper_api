@@ -62,21 +62,21 @@ func QueryArticle(ctx context.Context, opt *QueryOption) ([]map[string]interface
 			field, _ := v["author_image"].(*types.AttributeValueMemberS)
 			authorImage = field.Value
 		}
-		tags := ""
-		if v["tags"] != nil {
-			field, _ := v["tags"].(*types.AttributeValueMemberS)
-			tags = field.Value
-		}
 		authorName, _ := v["author_name"].(*types.AttributeValueMemberS)
 		keyword, _ := v["keyword"].(*types.AttributeValueMemberS)
 		imageUrl, _ := v["image_url"].(*types.AttributeValueMemberS)
+		age, _ := v["age"].(*types.AttributeValueMemberS)
+		ageText := ""
+		if age != nil {
+			ageText = age.Value
+		}
 		result = append(result, map[string]interface{}{
 			"id":          id.Value,
 			"authorId":    authorId.Value,
 			"dateId":      dateId.Value,
 			"authorImage": authorImage,
 			"authorName":  authorName.Value,
-			"tags":        tags,
+			"tags":        ageText,
 			"keyword":     keyword.Value,
 			"imageUrl":    imageUrl.Value,
 		})
