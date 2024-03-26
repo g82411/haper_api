@@ -10,14 +10,16 @@ import (
 
 func QueryArticleByUser(c *fiber.Ctx) error {
 	page := c.Query("last_date_id")
+	lastUserId := c.Query("last_author_id")
 	userInfo := c.Locals("userInfo").(*dto.UserInfo)
 	userSub := userInfo.Sub
 	ctx := context2.Background()
 	dynamoCtx, err := dynamodb.WithDynamoDBConnection(ctx)
 	stageCtx := context2.WithValue(dynamoCtx, "stage", "prod")
 	result, err := bussinessLogic.QueryArticle(stageCtx, &bussinessLogic.QueryOption{
-		LastAuthorId: userSub,
+		LastAuthorId: lastUserId,
 		LastDateId:   page,
+		AuthorId:     userSub,
 	})
 	//var article models.Article
 	if err != nil {

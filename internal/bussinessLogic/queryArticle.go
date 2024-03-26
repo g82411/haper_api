@@ -37,7 +37,6 @@ func transformOptToQuery(opt *QueryOption) *dynamodb.InputQuery {
 		expressionAttrVals[":author_id"] = &types.AttributeValueMemberS{Value: opt.AuthorId}
 		filterExpression := "valid = :valid"
 		query.FilterExpression = &filterExpression
-		delete(expressionAttrVals, ":valid")
 	}
 	query.KeyConditionExpression = &keyCondition
 	query.ExpressionAttribute = &expressionAttrVals
