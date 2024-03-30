@@ -13,6 +13,7 @@ func BindingRoutes(app *fiber.App) {
 	app.Get("user/article", middleware.AuthMiddleware, paths.QueryArticleByUser)
 
 	app.Get("article/:articleId", paths.GetArticle)
+	app.Patch("article/:articleId", middleware.AuthMiddleware, paths.UpdateArticle)
 	app.Get("articles", paths.TakeImages)
 	app.Get("templates", paths.GetTemplates)
 }

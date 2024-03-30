@@ -9,17 +9,14 @@ import (
 
 func GetArticle(ctx context.Context, articleId string) (map[string]interface{}, error) {
 	articleKeyExpression := "id = :id"
-	articleFilterExpression := "valid = :valid"
 	var articleFake models.Article
 	articleQuery := dynamodb.InputQuery{
 		KeyConditionExpression: &articleKeyExpression,
 		ExpressionAttribute: &map[string]types.AttributeValue{
-			":id":    &types.AttributeValueMemberS{Value: articleId},
-			":valid": &types.AttributeValueMemberS{Value: "true"},
+			":id": &types.AttributeValueMemberS{Value: articleId},
 		},
-		FilterExpression: &articleFilterExpression,
-		Limit:            1,
-		IndexName:        "PrimaryIdIndex",
+		Limit:     1,
+		IndexName: "PrimaryIdIndex",
 	}
 	article, err := dynamodb.Query(ctx, articleFake.TableName(ctx), &articleQuery)
 	if err != nil {
@@ -44,5 +41,7 @@ func GetArticle(ctx context.Context, articleId string) (map[string]interface{}, 
 		"date":       articleT.Date,
 		"tags":       articleT.Age,
 		"region":     articleT.Region,
+		"ta":         articleT.TA,
+		"willUse":    articleT.WillUse,
 	}, nil
 }

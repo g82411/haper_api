@@ -13,6 +13,8 @@ type Article struct {
 	Url         string
 	Keyword     string
 	Region      string
+	TA          string
+	WillUse     string
 	Age         string
 	AuthorId    string
 	AuthorName  string
@@ -54,6 +56,14 @@ func (_ Article) Serialize(av map[string]types.AttributeValue) interface{} {
 	article.ID = av["id"].(*types.AttributeValueMemberS).Value
 	region := ""
 	age := ""
+	ta := ""
+	willUse := ""
+	if av["ta"] != nil {
+		ta = av["ta"].(*types.AttributeValueMemberS).Value
+	}
+	if av["will_use"] != nil {
+		willUse = av["will_use"].(*types.AttributeValueMemberS).Value
+	}
 	if av["region"] != nil {
 		region = av["region"].(*types.AttributeValueMemberS).Value
 	}
@@ -62,6 +72,8 @@ func (_ Article) Serialize(av map[string]types.AttributeValue) interface{} {
 	}
 	article.Region = region
 	article.Age = age
+	article.TA = ta
+	article.WillUse = willUse
 	article.Url = av["image_url"].(*types.AttributeValueMemberS).Value
 	article.Keyword = av["keyword"].(*types.AttributeValueMemberS).Value
 	article.AuthorId = av["author_id"].(*types.AttributeValueMemberS).Value

@@ -13,8 +13,9 @@ import (
 )
 
 type Task struct {
-	TaskId string `json:"taskID"`
-	Status string `json:"status"`
+	TaskId    string `json:"taskID"`
+	ArticleId string `json:"articleID"`
+	Status    string `json:"status"`
 }
 
 func TaskDone(ctx context.Context, event dto.EventBody) error {

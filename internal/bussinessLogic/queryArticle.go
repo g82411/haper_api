@@ -52,32 +52,22 @@ func QueryArticle(ctx context.Context, opt *QueryOption) ([]map[string]interface
 		return nil, err
 	}
 	result := make([]map[string]interface{}, 0)
+	articleFake := models.Article{}
 	for _, v := range items {
-		id, _ := v["id"].(*types.AttributeValueMemberS)
-		authorId, _ := v["author_id"].(*types.AttributeValueMemberS)
-		dateId, _ := v["date_id"].(*types.AttributeValueMemberS)
-		authorImage := ""
-		if v["author_image"] != nil {
-			field, _ := v["author_image"].(*types.AttributeValueMemberS)
-			authorImage = field.Value
-		}
-		authorName, _ := v["author_name"].(*types.AttributeValueMemberS)
-		keyword, _ := v["keyword"].(*types.AttributeValueMemberS)
-		imageUrl, _ := v["image_url"].(*types.AttributeValueMemberS)
-		age, _ := v["age"].(*types.AttributeValueMemberS)
-		ageText := ""
-		if age != nil {
-			ageText = age.Value
-		}
+		articleT := articleFake.Serialize(v).(models.Article)
 		result = append(result, map[string]interface{}{
-			"id":          id.Value,
-			"authorId":    authorId.Value,
-			"dateId":      dateId.Value,
-			"authorImage": authorImage,
-			"authorName":  authorName.Value,
-			"tags":        ageText,
-			"keyword":     keyword.Value,
-			"imageUrl":    imageUrl.Value,
+			"id":         articleT.ID,
+			"imageUrl":   articleT.Url,
+			"keyword":    articleT.Keyword,
+			"authorId":   articleT.AuthorId,
+			"authorName": articleT.AuthorName,
+			"dateId":     articleT.DateId,
+			"date":       articleT.Date,
+			"tags":       articleT.Tags,
+			"age":        articleT.Age,
+			"ta":         articleT.TA,
+			"willUse":    articleT.WillUse,
+			"region":     articleT.Region,
 		})
 	}
 	return result, nil
