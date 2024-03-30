@@ -51,7 +51,7 @@ func CreateTask(ctx context.Context, article *models.Article) (*models.Task, err
 		Region:        article.Region,
 		Valid:         true,
 	}
-	err := dynamodb.Insert(ctx, article)
+	err := dynamodb.Insert(ctx, task)
 	if err != nil {
 		return nil, fmt.Errorf("error while inserting article: %s", err.Error())
 	}

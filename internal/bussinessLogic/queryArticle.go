@@ -56,18 +56,19 @@ func QueryArticle(ctx context.Context, opt *QueryOption) ([]map[string]interface
 	for _, v := range items {
 		articleT := articleFake.Serialize(v).(models.Article)
 		result = append(result, map[string]interface{}{
-			"id":         articleT.ID,
-			"imageUrl":   articleT.Url,
-			"keyword":    articleT.Keyword,
-			"authorId":   articleT.AuthorId,
-			"authorName": articleT.AuthorName,
-			"dateId":     articleT.DateId,
-			"date":       articleT.Date,
-			"tags":       articleT.Tags,
-			"age":        articleT.Age,
-			"ta":         articleT.TA,
-			"willUse":    articleT.WillUse,
-			"region":     articleT.Region,
+			"id":          articleT.ID,
+			"imageUrl":    articleT.Url,
+			"keyword":     articleT.Keyword,
+			"authorId":    articleT.AuthorId,
+			"authorName":  articleT.AuthorName,
+			"dateId":      articleT.DateId,
+			"date":        articleT.Date,
+			"tags":        articleT.Tags,
+			"age":         articleT.Age,
+			"ta":          articleT.TA,
+			"willUse":     articleT.WillUse,
+			"region":      articleT.Region,
+			"authorImage": articleT.AuthorImage,
 		})
 	}
 	return result, nil

@@ -32,16 +32,17 @@ func GetArticle(ctx context.Context, articleId string) (map[string]interface{}, 
 	}
 
 	return map[string]interface{}{
-		"id":         articleT.ID,
-		"imageUrl":   articleT.Url,
-		"keyword":    articleT.Keyword,
-		"authorId":   articleT.AuthorId,
-		"authorName": articleT.AuthorName,
-		"dateId":     articleT.DateId,
-		"date":       articleT.Date,
-		"tags":       articleT.Age,
-		"region":     articleT.Region,
-		"ta":         articleT.TA,
-		"willUse":    articleT.WillUse,
+		"id":          articleT.ID,
+		"imageUrl":    articleT.Url,
+		"keyword":     articleT.Keyword,
+		"authorId":    articleT.AuthorId,
+		"authorName":  articleT.AuthorName,
+		"dateId":      articleT.DateId,
+		"date":        articleT.Date,
+		"tags":        articleT.Age,
+		"region":      articleT.Region,
+		"ta":          articleT.TA,
+		"willUse":     articleT.WillUse,
+		"authorImage": articleT.AuthorImage,
 	}, nil
 }

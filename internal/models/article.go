@@ -70,6 +70,10 @@ func (_ Article) Serialize(av map[string]types.AttributeValue) interface{} {
 	if av["age"] != nil {
 		age = av["age"].(*types.AttributeValueMemberS).Value
 	}
+	authorImage := ""
+	if av["author_image"] != nil {
+		authorImage = av["author_image"].(*types.AttributeValueMemberS).Value
+	}
 	article.Region = region
 	article.Age = age
 	article.TA = ta
@@ -78,6 +82,7 @@ func (_ Article) Serialize(av map[string]types.AttributeValue) interface{} {
 	article.Keyword = av["keyword"].(*types.AttributeValueMemberS).Value
 	article.AuthorId = av["author_id"].(*types.AttributeValueMemberS).Value
 	article.AuthorName = av["author_name"].(*types.AttributeValueMemberS).Value
+	article.AuthorImage = authorImage
 	article.Valid = av["valid"].(*types.AttributeValueMemberS).Value == "true"
 	article.DateId = av["date_id"].(*types.AttributeValueMemberS).Value
 	return article

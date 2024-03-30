@@ -16,12 +16,12 @@ type Task struct {
 	Valid         bool
 }
 
-func (task *Task) TableName(ctx context.Context) string {
+func (task Task) TableName(ctx context.Context) string {
 	stage := ctx.Value("stage").(string)
 	return fmt.Sprintf("%s_tasks", stage)
 }
 
-func (task *Task) Deserialize() (map[string]types.AttributeValue, error) {
+func (task Task) Deserialize() map[string]types.AttributeValue {
 	return map[string]types.AttributeValue{
 		"id":              &types.AttributeValueMemberS{Value: task.ID},
 		"prompt":          &types.AttributeValueMemberS{Value: task.Prompt},
@@ -30,10 +30,11 @@ func (task *Task) Deserialize() (map[string]types.AttributeValue, error) {
 		"author_id":       &types.AttributeValueMemberS{Value: task.AuthorId},
 		"article_date_id": &types.AttributeValueMemberS{Value: task.ArticleDateId},
 		"valid":           &types.AttributeValueMemberBOOL{Value: task.Valid},
-	}, nil
+	}
 }
 
-func (task *Task) Serialize(av map[string]types.AttributeValue) {
+func (_ Task) Serialize(av map[string]types.AttributeValue) interface{} {
+	var task Task
 	task.ID = av["id"].(*types.AttributeValueMemberS).Value
 	task.Prompt = av["prompt"].(*types.AttributeValueMemberS).Value
 	task.Age = av["age"].(*types.AttributeValueMemberS).Value
@@ -41,4 +42,5 @@ func (task *Task) Serialize(av map[string]types.AttributeValue) {
 	task.AuthorId = av["author_id"].(*types.AttributeValueMemberS).Value
 	task.ArticleDateId = av["article_date_id"].(*types.AttributeValueMemberS).Value
 	task.Valid = av["valid"].(*types.AttributeValueMemberBOOL).Value
+	return task
 }
